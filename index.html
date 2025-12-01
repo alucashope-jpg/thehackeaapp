@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- TÍTULO ATUALIZADO --><title>La Clave Secreta para Recuperar a su Hombre</title>
+    <!-- Carrega o Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importa a fonte LATO (Limpa e Profissional) do Google Fonts --><link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Define a fonte Lato como padrão para o corpo e cabeçalhos */
+        :root {
+            font-family: 'Lato', sans-serif;
+        }
+
+        /* ANIMAÇÃO CSS PARA O BOTÃO PULSANTE */
+        @keyframes pulse-once {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .cta-pulse {
+            animation: pulse-once 1.5s infinite; /* Aplica a animação infinita */
+        }
+
+        /* O content-wrapper garante que o conteúdo principal fique por cima do background */
+        .content-wrapper {
+            position: relative;
+            z-index: 20; /* Prioridade sobre o overlay z-10 */
+            padding-bottom: 1rem;
+        }
+        
+        /* Container responsivo para o vídeo (16:9) */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            max-width: 640px; /* Limite o tamanho máximo do vídeo */
+            margin-left: auto;
+            margin-right: auto;
+            /* ADICIONA A BORDA VERMELHA */
+            border: 4px solid #D62828; /* primary-red */
+            border-radius: 1rem; /* Borda arredondada */
+            overflow: hidden; /* Garante que o iframe não saia da borda */
+        }
+
+        /* Aplica o estilo ao iframe do vídeo */
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Adiciona padding na parte inferior do body para evitar que o conteúdo fique atrás do rodapé fixo */
+        body {
+            padding-bottom: 3.5rem; /* Ajustado para acomodar o rodapé fixo */
+            font-family: 'Lato', sans-serif; /* Garante que a fonte seja aplicada diretamente */
+        }
+
+        /* Regra para garantir o peso extra-bold (900) na headline */
+        .font-extrabold {
+            font-weight: 900;
+        }
+
+        /* Regra para garantir o peso light (300/400) no subtítulo */
+        .font-light {
+            font-weight: 300;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-red': '#D62828',
+                        'secondary-dark': '#1a1a1a',
+                        // CORES VERDES REMOVIDAS, RESTAURANDO O VERMELHO
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col relative">
+    
+    <!-- OVERLAY PRETO TRANSPARENTE (50%) QUE COBRE TODA A TELA (z-10) --><div class="absolute inset-0 bg-black/50 z-10"></div>
+
+    <!-- PADDING SUPERIOR AJUSTADO PARA pt-8 (2.0rem) PARA MAIS ESPAÇO NO TOPO --><main class="content-wrapper flex-grow flex justify-center pt-8 px-3 sm:p-6">
+        <div class="w-full max-w-4xl text-center">
+            
+            <!-- HEADLINE PRINCIPAL --><h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-3 tracking-tighter" style="color: white !important;">
+                La Clave Secreta Para Recuperar A Su Hombre
+            </h1>
+            
+            <!-- SUBHEADLINE COMPLEMENTAR --><h2 class="text-lg sm:text-xl md:text-2xl font-light mb-6 text-white">
+                ¡Basta De Sufrimiento! Descubre El Plan Exacto Para Que Regrese A Ti En 7 Días.
+            </h2>
+
+            <!-- VÍDEO DO VIMEO --><div class="video-container shadow-2xl shadow-primary-red/70">
+                <iframe 
+                    id="vimeoPlayer"
+                    src="https://player.vimeo.com/video/803066706?title=0&byline=0&portrait=0" 
+                    width="640" 
+                    height="360" 
+                    frameborder="0" 
+                    allow="autoplay; fullscreen; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <!-- CHAMADA PARA ATIVAR O SOM (IMEDIATA) --><div class="mt-4 flex items-center justify-center space-x-2 max-w-sm mx-auto">
+                <span class="text-sm">🔊</span>
+                <p class="text-xs font-semibold uppercase text-gray-300">
+                    ¡ATENCIÓN: ACTIVA TU SONIDO Y MIRA HASTA EL FINAL!
+                </p>
+            </div>
+
+            <!-- CONTAINER DO BOTÃO (ESCONDIDO, SÓ APARECE APÓS 5 SEGUNDOS DE VÍDEO) --><div id="ctaContainer" class="hidden">
+                <!-- BOTÃO CTA PRINCIPAL: Pulsante. Link da Hotmart. CLASSES VERDES SUBSTITUÍDAS POR VERMELHAS --><a href="https://pay.hotmart.com/G103066699B?off=ap1nbqnv" class="inline-block mt-8 py-1.5 px-4 text-base sm:py-3 sm:px-10 sm:text-lg bg-primary-red hover:bg-red-700 text-white hover:text-white font-bold uppercase rounded-xl shadow-lg shadow-primary-red/50 transition duration-300 transform hover:scale-105 border-b-4 border-red-900 cta-pulse">
+                    ¡QUIERO DESCUBRIR EL MÉTODO AHORA!
+                </a>
+
+                <!-- Chamada de Urgência Abaixo do Botão --><p class="text-xs mt-2 font-medium text-gray-300">
+                    OFERTA VÁLIDA SOLAMENTE MIENTRAS EL VIDEO ESTÉ AL AIRE.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- RODAPÉ FIXO (z-50) traduzido para espanhol --><footer class="w-full bg-secondary-dark/90 py-3 text-center text-xs text-gray-400 border-t border-gray-700 fixed bottom-0 left-0 right-0 z-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <!-- SEPARAÇÃO DAS LINHAS DE DIREITOS AUTORAIS --><p>&copy; 2025 Claves de la Conquista</p>
+            <p class="mt-1">Todos los Derechos Reservados</p>
+            <div class="mt-1 space-x-3">
+                <!-- LINK ATUALIZADO PARA 'terminosdeuso.html' --><a href="terminosdeuso.html" class="hover:text-primary-red transition duration-200">Términos de Uso</a>
+                <span class="text-gray-600">|</span>
+                <!-- LINK ATUALIZADO PARA 'politicadeprivacidad.html' --><a href="politicadeprivacidad.html" class="hover:text-primary-red transition duration-200">Política de Privacidad</a>
+                <span class="text-gray-600">|</span>
+                <a href="#" class="hover:text-primary-red transition duration-200">Contacto</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SCRIPT PARA CARREGAR A API DO VIMEO PLAYER --><script src="https://player.vimeo.com/api/player.js"></script> 
+
+    <!-- SCRIPT PARA MOSTRAR O BOTÃO APÓS 5 SEGUNDOS DE REPRODUÇÃO DO VÍDEO --><script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('ctaContainer');
+            const iframe = document.getElementById('vimeoPlayer');
+
+            if (iframe && container && typeof Vimeo !== 'undefined') {
+                // Inicializa el reproductor de Vimeo
+                const player = new Vimeo.Player(iframe);
+                
+                // Variable para garantir que el CTA solo apareça una vez
+                let ctaShown = false;
+
+                // Define el tiempo que el CTA debe aparecer (en segundos)
+                const targetTime = 5;
+
+                // Listener para el evento 'timeupdate' (actualiza el tiempo de reproducción)
+                player.on('timeupdate', function(data) {
+                    // Comprueba si el CTA aún no se ha mostrado y si el tiempo actual es >= 5 segundos
+                    if (!ctaShown && data.seconds >= targetTime) {
+                        // El tiempo objetivo se ha alcanzado: muestra el CTA
+                        container.classList.remove('hidden');
+                        ctaShown = true;
+                        
+                        // Opcional: Elimina el listener después de que se muestre el CTA para ahorrar recursos
+                        player.off('timeupdate');
+                    }
+                });
+
+                // Fallback de seguridad: Si el video termina sin que el CTA se haya mostrado, muéstralo.
+                player.on('ended', function() {
+                    if (!ctaShown) {
+                        container.classList.remove('hidden');
+                        ctaShown = true;
+                    }
+                });
+
+            } else {
+                // FALLBACK: Si la API de Vimeo no se carga o los elementos no se encuentran, 
+                // usa el timeout de 5 segundos anterior como seguridad.
+                const delayTime = 5000;
+                setTimeout(() => {
+                    if (container) {
+                        container.classList.remove('hidden');
+                    }
+                }, delayTime);
+            }
+        });
+    </script>
+</body>
+</html>
