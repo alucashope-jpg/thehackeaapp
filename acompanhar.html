@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE ahtml>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -16,8 +16,10 @@
             --color-light: #f8fafc;
             --color-success: #10b981; /* Emerald */
             --color-error: #ef4444; /* Red */
-            --progress-dot-size: 28px; /* Tamanho do círculo do progresso */
-            --progress-line-height: 4px; /* Espessura da linha (mais fina) */
+            
+            /* Tamanho exato do círculo */
+            --progress-dot-size: 38px; 
+            --progress-line-height: 5px;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -27,13 +29,16 @@
             color: var(--color-light);
             min-height: 100vh;
         }
+        /* Nova classe para bloquear a rolagem */
+        body.no-scroll {
+            overflow: hidden;
+        }
         /* Custom Scrollbar Styling */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
         
-        /* Estilos de Sombra e Glow */
         .card-shadow {
             box-shadow: 0 0 30px rgba(79, 70, 229, 0.1), 0 0 5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
@@ -45,141 +50,195 @@
             box-shadow: 0 0 30px rgba(239, 68, 68, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* PROGRESS BAR STYLES (Progress Line Hover) */
-        .progress-container {
+        /* ------------------------------------------- */
+        /* CSS ESTRUTURAL DA BARRA DE PROGESSO       */
+        /* ------------------------------------------- */
+        
+        .progress-wrapper {
             position: relative;
+            /* Espaço reservado para o texto que é absolute */
+            padding-bottom: 30px; 
+            margin-top: 20px;
+        }
+
+        .progress-steps-container {
             display: flex;
-            align-items: center;
-            /* Padding ajustado para o alinhamento da linha */
-            padding: 0 calc(var(--progress-dot-size) / 2); 
-            margin-top: 10px;
+            justify-content: space-between; /* Garante distribuição igual */
+            align-items: flex-start;
+            position: relative;
+            z-index: 2;
             width: 100%;
         }
 
-        /* Linha de progresso (4px) - Alinhamento Perfeito */
-        .progress-line {
+        /* Linhas de Fundo e Preenchimento */
+        .progress-track {
             position: absolute;
-            top: calc(var(--progress-dot-size) / 2 - var(--progress-line-height) / 2); 
-            height: var(--progress-line-height);
-            background: #334155; /* Cor da linha base (slate-700) */
-            left: 0; 
+            top: calc(var(--progress-dot-size) / 2 - var(--progress-line-height) / 2);
+            left: 0;
             right: 0;
-            z-index: 10;
-            border-radius: 3px;
-        }
-
-        /* Linha de preenchimento do progresso */
-        .progress-fill {
-            height: 100%;
-            background: var(--color-primary);
-            transition: width 0.8s ease-in-out, background-color 0.3s;
-            border-radius: 3px;
+            height: var(--progress-line-height);
+            background-color: #334155;
+            z-index: 1;
+            border-radius: 10px;
         }
         
-        /* Círculo do indicador (Vazio, só borda) */
-        .progress-indicator {
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var(--color-success); /* Cor padrão de progresso (VERDE) */
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        }
+
+        /* Item do Passo (Container do Dot) */
+        .progress-step {
+            position: relative;
+            /* A largura do container do passo é EXATAMENTE a largura do círculo. */
+            width: var(--progress-dot-size); 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* O Círculo (Dot) */
+        .progress-dot {
             width: var(--progress-dot-size);
             height: var(--progress-dot-size);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            z-index: 20;
-            background-color: var(--color-bg-card); /* Fundo do card para flutuar */
-            border: 2px solid #334155; /* Borda padrão (slate-700) */
-            flex-shrink: 0;
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--color-bg-card); 
             transition: all 0.3s ease;
-        }
-        
-        /* Ícone de Check/X no centro */
-        .indicator-icon {
-            width: 70%;
-            height: 70%;
-            color: transparent; /* Invisível por padrão */
-            transition: color 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10; /* Acima da linha */
         }
 
-        /* Animação para o estado "Current" (Pulsação no anel) */
-        @keyframes pulse-dot {
-            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-        }
-        .dot-current {
-             animation: pulse-dot 1.8s infinite;
-             box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
-             border-color: var(--color-primary) !important; /* Borda primária pulsante */
-        }
-        
-        .progress-steps-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: space-between; 
-            position: relative;
+        /* Texto (Label) - Posicionamento Absoluto para não afetar largura */
+        .step-label {
+            position: absolute;
+            top: 100%; /* Logo abaixo do dot */
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            color: #94a3b8;
         }
 
-        .progress-step-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center; 
+        /* ALINHAMENTOS ESPECÍFICOS (Mantidos) */
+        .progress-step:first-child { align-items: flex-start; }
+        .progress-step:first-child .step-label { left: 0; text-align: left; }
+
+        .progress-step:last-child { align-items: flex-end; }
+        .progress-step:last-child .step-label { right: 0; text-align: right; }
+
+        .progress-step:not(:first-child):not(:last-child) { align-items: center; }
+        .progress-step:not(:first-child):not(:last-child) .step-label {
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
-            flex-shrink: 0;
-            padding: 0 5px;
-            /* MUDANÇA: Permite que o texto quebre */
-            white-space: normal; 
-        }
-        
-        /* Ajusta o alinhamento do texto nas pontas */
-        .progress-steps-wrapper > .progress-step-container:first-child > span {
-             text-align: left; 
-        }
-        .progress-steps-wrapper > .progress-step-container:last-child > span {
-             text-align: right; 
-        }
-        /* Centraliza os indicadores nas etapas intermediárias */
-        .progress-steps-wrapper > .progress-step-container:nth-child(2) > span,
-        .progress-steps-wrapper > .progress-step-container:nth-child(3) > span {
-             text-align: center; 
         }
 
-        /* MUDANÇA: Força o alinhamento dos dots para as extremidades no mobile */
-        .progress-steps-wrapper > .progress-step-container:first-child {
-            align-items: flex-start;
-            
-        }
-        .progress-steps-wrapper > .progress-step-container:last-child {
-            align-items: flex-end;
-        }
+        /* ------------------------------------------- */
+        /* CORES DE ESTADO (Atualizadas para VERDE/VERMELHO) */
+        /* ------------------------------------------- */
         
+        /* Etapa Concluída (Agora VERDE por padrão, como solicitado) */
+        .dot-passed { background-color: var(--color-success); color: white; }
+        .label-passed { color: var(--color-success); font-weight: 700; }
+        
+        /* Etapa Atual (Agora VERDE e pulsando em VERDE) */
+        .dot-current { 
+            background-color: var(--color-success); 
+            color: white; 
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.4); /* Sombra Verde */
+            animation: pulse-ring 2s infinite;
+        }
+        .label-current { color: var(--color-success); font-weight: 800; }
+
+        /* Etapa Pendente (Mantida) */
+        .dot-pending { background-color: #334155; color: #94a3b8; }
+        .label-pending { color: #64748b; }
+
+        /* Estilos de ERRO (Vermelho) */
+        .dot-error { background-color: var(--color-error); color: white; }
+        .label-error { color: var(--color-error); font-weight: 700; }
+        
+        @keyframes pulse-ring {
+            /* Animação de pulso agora em VERDE */
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Ajustes Mobile */
+        @media (max-width: 640px) {
+            .step-label { font-size: 10px; }
+            :root { --progress-dot-size: 32px; }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: var(--color-bg-card);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+            max-width: 90%;
+            width: 400px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
     </style>
 </head>
 <body onload="initTracker()">
 
-    <!-- Header / Sticky Navigation --><header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo --><a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
                     <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
                     <div class="flex flex-col leading-none">
                         <span class="text-teal-400 text-base">HACKEA</span>
                         <span class="text-white text-base -mt-1">BRASIL</span>
                     </div>
                 </a>
-
-                <!-- Desktop Navigation Links --><nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
                     <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
                     <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
                     <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
                     <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
-                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Notícias de Hack</a>
-                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Apps Modificados</a>
-                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING Mais em Conta</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
                 </nav>
-
-                <!-- Action Button --><button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ml-4">
+                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
                     <i data-lucide="home" class="w-3 h-3 mr-1"></i>
-                    Voltar ao Início
+                    Início
                 </button>
             </div>
         </div>
@@ -188,288 +247,490 @@
     <main class="py-10 lg:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-extrabold text-white mb-8 text-center sm:text-left">
-                <i data-lucide="list-checks" class="w-7 h-7 inline-block mr-2 text-indigo-400"></i>
-                Acompanhamento de Pedidos
+                <!-- Ícone removido aqui -->
+                Acompanhe a Sua Conta
             </h1>
 
-            <!-- Seção de Filtros e Busca (Estilo Modernizado) --><div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
+            <!-- Filtros -->
+            <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
                 <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
                     <i data-lucide="filter" class="w-5 h-5 mr-2 text-teal-400"></i>
-                    Filtros de Busca Rápida
+                    Filtros de Busca
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- Input de Nome --><input type="text" id="filter-name" placeholder="Buscar por Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition" oninput="applyFilters()">
-                    
-                    <!-- Select/Filtro de Status --><select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none cursor-pointer" onchange="applyFilters()">
+                    <input type="text" id="filter-name" placeholder="Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition" oninput="applyFilters()">
+                    <select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition cursor-pointer" onchange="applyFilters()">
                         <option value="">Todos os Status</option>
                         <option value="aguardando">Aguardando</option>
                         <option value="analise">Análise</option>
                         <option value="recuperar">Recuperação</option>
-                        <option value="sucesso">Sucesso (Concluído)</option>
-                        <option value="erro">Erro (Falha)</option>
+                        <option value="sucesso">Sucesso</option>
+                        <option value="erro">Erro</option>
                     </select>
-
-                    <!-- Botão Limpar --><button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
+                    <button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
-                        Limpar Filtros
+                        Limpar
                     </button>
                 </div>
             </div>
 
-            <!-- Container de Resultados --><div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Cards de Pedidos serão injetados aqui --></div>
-
+            <!-- Container de Resultados -->
+            <div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            
             <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
                 <i data-lucide="frown" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
-                <p class="text-xl text-slate-400">Nenhum pedido encontrado com os filtros aplicados.</p>
+                <p class="text-xl text-slate-400">Nenhum pedido encontrado.</p>
             </div>
-
         </div>
     </main>
 
-    <!-- Footer (Copiado da página principal) --><footer>
+    <!-- Footer -->
+    <footer>
         <div class="bg-slate-900 border-t border-indigo-900 py-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
                     <i data-lucide="shield-half" class="w-5 h-5"></i>
                     <span>HACKEA BRASIL</span>
                 </div>
-                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados. Recuperando o que é seu.</p>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Modal de Pagamento -->
+    <div id="payment-modal" class="modal-overlay"> 
+        <div class="modal-content p-6">
+            <div class="flex justify-between items-center pb-4 border-b border-slate-700">
+                <h3 class="text-2xl font-bold text-white flex items-center">
+                    <i data-lucide="key-round" class="w-5 h-5 mr-2 text-emerald-400"></i>
+                    Fazer Pagamento
+                </h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div id="modal-details" class="py-5 space-y-3 text-slate-300">
+                <!-- Detalhes injetados aqui -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-700">
+                <!-- Botão de pagamento que abre o link do Instagram Direct -->
+                <button onclick="redirectToChat()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-base">
+                    <i data-lucide="message-circle" class="w-5 h-5 mr-2"></i>
+                    PAGAR NO CHAT
+                </button>
+                <p class="text-xs text-slate-500 text-center mt-2">Você será redirecionado para o nosso canal de atendimento para finalizar o pagamento (PIX ou Cartão).</p>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Dados simulados de pedidos de recuperação
+        // Adicionado campo 'platform'
         const recoveryRequests = [
-            { id: '001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null },
-            { id: '002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null },
-            { id: '003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 3, error: 'Falha na validação de identidade documental.' },
-            { id: '004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null },
-            { id: '005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null },
-            { id: '006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null },
-            { id: '007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 2, error: 'O invasor reforçou a segurança 2FA.' },
+            { id: '0001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null, cost: 99.90, platform: 'instagram' },
+            { id: '0002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 4, error: 'Falha na validação de identidade documental.', cost: 0.00, platform: 'instagram' }, 
+            { id: '0004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null, cost: 79.90, platform: 'instagram' },
+            { id: '0007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 4, error: 'O invasor reforçou a segurança 2FA.', cost: 0.00, platform: 'instagram' }, 
+            
+            // Novos pedidos do Facebook
+            { id: '0008', name: 'Gabriela Costa', username: 'Gabriela Costa', email: 'gabicosta@gmail.com', date: '01/11/2025', status: 'sucesso', stage: 4, error: null, cost: 89.00, platform: 'facebook' },
+            { id: '0009', name: 'Ricardo Almeida', username: 'Ricardo Almeida', email: 'ricalmeida@hotmail.com', date: '05/11/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'facebook' },
+            { id: '0010', name: 'Patrícia Nunes', username: 'Patrícia Nunes', email: 'patynunes@yahoo.com', date: '10/11/2025', status: 'erro', stage: 4, error: 'Perfil com restrição de idade permanente.', cost: 0.00, platform: 'facebook' },
         ];
 
-        // Mapeamento de estágios para a barra de progresso (4 etapas)
         const progressStages = [
-            { label: "Aguardando Início" },
-            { label: "Análise/Busca" },
-            { label: "Ação/Recuperação" },
-            { label: "Concluído" }
+            { label: "Solicitado" }, 
+            { label: "Análise" }, 
+            { label: "Recuperando" }, 
+            { label: "Finalizado" } 
         ];
+        
+        // Função de ordenação: Sucesso (1) > Em Progresso (0) > Erro (-1)
+        function sortRequests(a, b) {
+            const getPriority = (status) => {
+                if (status === 'sucesso') return 2;
+                if (status === 'erro') return 0;
+                return 1; // aguardando, analise, recuperar
+            };
 
-        // Função para obter as iniciais
-        function getInitials(name) {
-            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            const priorityA = getPriority(a.status);
+            const priorityB = getPriority(b.status);
+
+            return priorityB - priorityA; // Ordena do maior (Sucesso) para o menor (Erro)
         }
 
-        // Função para censurar o email
+
+        function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2); }
+        
+        // CENSURA EMAIL: Mostra primeira, última e domínio
         function censorEmail(email) {
             if (!email || typeof email !== 'string') return '***@***';
-            const [localPart, domain] = email.split('@');
-            if (localPart.length > 3) {
-                return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`;
-            }
-            return `***@${domain}`;
+            const [local, domain] = email.split('@');
+            if (!domain) return '***@***';
+            // Deixa 1ª letra, 3 estrelas, última letra, e o domínio completo
+            return `${local[0]}***${local.slice(-1)}@${domain}`;
         }
         
-        // RENDERIZADOR DE BARRA DE PROGRESSO (Progress Line Hover)
-        function renderProgressBar(request) {
-            
-            let finalStatusLabel = request.status.charAt(0).toUpperCase() + request.status.slice(1);
-            if (request.status === 'sucesso') {
-                finalStatusLabel = "SUCESSO";
-            } else if (request.status === 'erro') {
-                finalStatusLabel = "ERRO";
+        // CENSURA USERNAME (Instagram): Censura as últimas 3 letras
+        function censorUsername(username, status) {
+            const statusToShow = ['sucesso', 'erro'];
+            // Se for status de sucesso ou erro, mostra o username completo
+            if (statusToShow.includes(status)) {
+                return username;
             }
-
-            const textColor = request.status === 'sucesso' ? 'text-emerald-400' : (request.status === 'erro' ? 'text-red-400' : 'text-indigo-400');
             
-            // Largura de preenchimento (0%, 33.3%, 66.6%, 100%)
-            const fillPercentage = ((request.stage - 1) / (progressStages.length - 1)) * 100;
+            // Censura
+            if (!username || username.length <= 4) {
+                return username.slice(0, 1) + '***';
+            }
+            // Deixa tudo exceto as últimas 3 letras visíveis
+            const visiblePart = username.slice(0, -3);
+            return visiblePart + '***';
+        }
+
+        // Formatação do custo para Real Brasileiro (R$)
+        function formatCost(cost) {
+            return cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
+        function renderProgressBarModern(request) {
             
+            const isFinished = request.status === 'sucesso' || request.status === 'erro';
+            const actualStage = isFinished ? progressStages.length : request.stage;
+            const fillPercentage = ((actualStage - 1) / (progressStages.length - 1)) * 100;
+            
+            const fillColor = request.status === 'erro' ? 'var(--color-error)' : 'var(--color-success)';
 
-            let progressHtml = `
-                <div class="space-y-4 pt-4">
-                    
-                    <!-- Container da Barra -->
-                    <div class="progress-container relative">
-                        
-                        <!-- Linha Base e Preenchimento -->
-                        <div class="progress-line">
-                            <div id="progress-fill-${request.id}" 
-                                class="progress-fill" 
-                                style="width: ${fillPercentage}%; background-color: ${request.status === 'sucesso' ? 'var(--color-success)' : (request.status === 'erro' ? 'var(--color-error)' : 'var(--color-primary)')};">
-                            </div>
-                        </div>
-
-                        <!-- Indicadores das Etapas -->
-                        <div class="progress-steps-wrapper">
-            `;
-
-            progressStages.forEach((stage, index) => {
+            let stepsHtml = progressStages.map((stage, index) => {
                 const stepNumber = index + 1;
-                const isCurrent = request.stage === stepNumber && request.status !== 'sucesso' && request.status !== 'erro';
-                const isPassed = request.stage >= stepNumber;
+                const isLastStep = stepNumber === progressStages.length;
                 
-                let indicatorClasses = 'border-slate-600'; 
-                let iconClasses = 'text-slate-600'; // Cor do ícone padrão
-                let labelClasses = 'text-slate-500 font-medium';
-                let dotAnimation = '';
-                let iconName = 'circle'; // Ícone padrão para etapas incompletas
-                
-                // Cor e estilo para etapas concluídas/passadas
-                if (isPassed) {
-                    indicatorClasses = request.status === 'sucesso' ? 'border-emerald-600' : (request.status === 'erro' ? 'border-red-600' : 'border-indigo-600');
-                    iconClasses = request.status === 'sucesso' ? 'text-emerald-500' : (request.status === 'erro' ? 'text-red-500' : 'text-indigo-500');
-                    labelClasses = request.status === 'sucesso' ? 'text-emerald-400 font-semibold' : (request.status === 'erro' ? 'text-red-400 font-semibold' : 'text-indigo-400 font-semibold');
-                    iconName = request.status === 'erro' && stepNumber === request.stage ? 'x-octagon' : 'check'; // Check mark ou X
+                let currentLabel = stage.label;
+                if (isLastStep) {
+                    if (request.status === 'sucesso') {
+                        // Rótulo da barra: Sucesso
+                        currentLabel = "Sucesso"; 
+                    } else if (request.status === 'erro') {
+                        // Rótulo da barra: Erro
+                        currentLabel = "Erro"; 
+                    } else {
+                        currentLabel = "Resultado";
+                    }
                 }
 
-                // Cor e estilo para etapa atual (pulsando)
-                if (isCurrent) {
-                    dotAnimation = 'dot-current';
-                    indicatorClasses = 'border-indigo-600';
-                    iconClasses = 'text-indigo-500';
-                    labelClasses = 'text-indigo-400 font-extrabold';
-                    iconName = 'loader-circle'; // Loader para o estágio ativo
+                const isPassed = isFinished || request.stage >= stepNumber; 
+                const isCurrent = request.stage === stepNumber && !isFinished;
+                
+                let dotClass = 'dot-pending';
+                let labelClass = 'label-pending';
+                let icon = stepNumber;
+
+                if (request.status === 'erro') {
+                    dotClass = 'dot-error';
+                    labelClass = 'label-error';
+                    if (isLastStep) {
+                        icon = '<i data-lucide="x" class="w-4 h-4"></i>';
+                    }
+                } 
+                else if (isPassed) {
+                    dotClass = 'dot-passed';
+                    labelClass = 'label-passed';
+                    
+                    if (request.status === 'sucesso' && isLastStep) {
+                        icon = '<i data-lucide="check" class="w-4 h-4"></i>';
+                    }
                 }
 
-                // Se não for a etapa atual/passada, o ícone deve ser transparente (vazio)
+                if (isCurrent && request.status !== 'erro') {
+                    dotClass = 'dot-current';
+                    labelClass = 'label-current';
+                }
+                
                 if (!isPassed && !isCurrent) {
-                    iconName = 'circle';
-                    iconClasses = 'text-slate-700'; // Cor da borda
+                    dotClass = 'dot-pending';
+                    labelClass = 'label-pending';
+                    icon = stepNumber;
                 }
-                
-                // MÁXIMO DE 4 ETAPAS PARA ALINHAMENTO PERFEITO
 
-                progressHtml += `
-                    <div class="progress-step-container">
-                        <div class="progress-indicator ${indicatorClasses} ${dotAnimation}">
-                            <i data-lucide="${iconName}" class="indicator-icon ${iconClasses}"></i>
-                        </div>
-                        <span class="text-[10px] sm:text-xs ${labelClasses} mt-2">${stage.label.replace('/', '/ ')}</span>
+
+                return `
+                    <div class="progress-step">
+                        <div class="progress-dot ${dotClass}">${icon}</div>
+                        <span class="step-label ${labelClass}">${currentLabel}</span>
                     </div>
                 `;
-            });
+            }).join('');
 
-            progressHtml += `
-                        </div>
+            // Botão de resgate com o texto simplificado e função para abrir o modal
+            const actionContent = (request.status === 'sucesso' ? 
+                `<button onclick="openModal('${request.id}', '${formatCost(request.cost)}', '${request.username}')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-sm">
+                    <i data-lucide="key" class="w-4 h-4 mr-2"></i>
+                    Resgatar por ${formatCost(request.cost)}
+                </button>` 
+            : request.status === 'erro' ? 
+                `<div class="p-2.5 bg-red-900/20 border border-red-500/30 rounded-lg text-red-300 text-xs font-medium">
+                    ${request.error || 'Erro desconhecido.'}
+                </div>` 
+            : '');
+
+            const actionContainerClass = actionContent ? "mt-12 text-center pt-4 border-t border-slate-700/50" : "";
+            
+            return `
+                <div class="progress-wrapper">
+                    <!-- Faixa (Track) e Preenchimento (Fill) -->
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${fillPercentage}%; background-color: ${fillColor}"></div>
+                    </div>
+                    
+                    <!-- Passos (Dots e Texto) -->
+                    <div class="progress-steps-container">
+                        ${stepsHtml}
                     </div>
 
-                    <!-- Status Finalizado/Erro/Ação --><div class="pt-4 border-t border-slate-700 mt-4 text-center">
-                        <p class="text-xl font-bold ${textColor}">Status: ${finalStatusLabel}</p>
-                        ${request.status === 'sucesso' ? 
-                            `<button onclick="console.log('Resgatar Conta ${request.id}')" class="mt-4 w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-xl flex items-center justify-center">
-                                <i data-lucide="key" class="w-5 h-5 mr-2"></i>
-                                Resgatar Conta
-                            </button>` 
-                        : request.status === 'erro' ? 
-                            `<div class="mt-4 p-3 bg-red-700/30 border border-red-500 rounded-lg text-red-300 font-medium">
-                                ERRO: Recuperação não foi possível. Detalhes: ${request.error || 'Motivo desconhecido.'}
-                            </div>` 
-                        : ''}
-                    </div>
+                    <!-- Botão ou Status Final (Espaçamento só se houver conteúdo) -->
+                    ${actionContent ? `<div class="${actionContainerClass}">${actionContent}</div>` : ''}
                 </div>
             `;
+        }
+        
+        // NOVA FUNÇÃO para renderizar detalhes da plataforma
+        function renderPlatformDetails(request) {
+            const isInstagram = request.platform === 'instagram';
+            
+            // Para Instagram, usamos censura. Para Facebook, usamos o nome completo.
+            const displayValue = isInstagram 
+                ? censorUsername(request.username, request.status) 
+                : request.username; 
+            
+            const iconName = isInstagram ? 'instagram' : 'facebook';
+            const linkBase = isInstagram 
+                ? `https://instagram.com/${request.username.replace('@', '')}` 
+                : `https://facebook.com/search/top?q=${encodeURIComponent(request.username)}`;
+            
+            // CORREÇÃO: O @ só é adicionado aqui, se for Instagram, para ser exibido no badge.
+            const linkText = isInstagram ? `@${displayValue.replace('@', '')}` : displayValue;
+            
+            const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
+            
+            // Classes para o texto do username (dentro do badge)
+            const textClass = usernameIsLink 
+                ? `text-white hover:text-slate-200 font-semibold transition truncate` 
+                : `text-white truncate`;
+            
+            // O BADGE (caixa) em si
+            const badgeClass = `inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700/70 shadow-inner`;
 
-            return progressHtml;
+            const content = `
+                <i data-lucide="${iconName}" class="w-3 h-3 text-white flex-shrink-0 mr-1"></i>
+                <span class="${textClass}">${linkText}</span>
+            `;
+
+            const element = usernameIsLink ? 
+                `<a href="${linkBase}" target="_blank" class="${badgeClass} hover:border-indigo-500">
+                    ${content}
+                </a>` :
+                `<span class="${badgeClass}">
+                    ${content}
+                </span>`;
+                
+            return element;
         }
 
+        function renderRequestCard(request) {
+            let statusColor = 'border-slate-600';
+            let badgeColor = 'bg-slate-600';
+            let shadow = 'card-shadow';
 
-        // Função principal de renderização
-        function renderRequests(requestsToRender) {
-            const container = document.getElementById('requests-container');
-            const noResults = document.getElementById('no-results');
-            container.innerHTML = '';
-
-            if (requestsToRender.length === 0) {
-                noResults.classList.remove('hidden');
-                return;
-            } else {
-                noResults.classList.add('hidden');
+            // Lógica para cor da borda:
+            if (request.status === 'sucesso') {
+                statusColor = 'border-indigo-500'; // Sucesso: Roxa
+                shadow = 'status-success-shadow';
+            } else if (request.status === 'erro') {
+                // Borda VERMELHA para status de erro
+                statusColor = 'border-[var(--color-error)]'; 
+                shadow = 'status-error-shadow';
+            } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
+                // Progresso: Borda cinza
+                statusColor = 'border-slate-700';
+                badgeColor = 'bg-slate-700'; 
+            }
+            
+            // Lógica para cor do Badge:
+            if (request.status === 'sucesso') { 
+                badgeColor = 'bg-emerald-600'; 
+            } else if (request.status === 'erro') { 
+                badgeColor = 'bg-red-600'; 
             }
 
-            requestsToRender.forEach(request => {
-                let statusColor = '';
-                let extraShadowClass = 'card-shadow';
-                switch (request.status) {
-                    case 'sucesso': statusColor = 'border-emerald-500'; extraShadowClass = 'status-success-shadow'; break;
-                    case 'erro': statusColor = 'border-red-500'; extraShadowClass = 'status-error-shadow'; break;
-                    case 'analise': statusColor = 'border-indigo-500'; break;
-                    case 'recuperar': statusColor = 'border-orange-500'; break;
-                    case 'aguardando': statusColor = 'border-slate-600'; break;
-                    default: statusColor = 'border-slate-600';
-                }
-
-                // Define a cor de fundo do status badge
-                let statusBadgeBg = 'bg-slate-600';
-                if (request.status === 'sucesso') statusBadgeBg = 'bg-emerald-600';
-                else if (request.status === 'erro') statusBadgeBg = 'bg-red-600';
-                else if (request.status === 'analise') statusBadgeBg = 'bg-indigo-600';
-                else if (request.status === 'recuperar') statusBadgeBg = 'bg-orange-500';
-
-
-                const cardHtml = `
-                    <div class="bg-[var(--color-bg-card)] p-6 rounded-xl border ${statusColor} transform hover:scale-[1.01] transition duration-300 group ${extraShadowClass}">
-                        <!-- Cabeçalho do Card (ID e Status) --><div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-700/50">
-                            <h3 class="text-xl font-extrabold text-white flex items-center">
-                                <i data-lucide="hash" class="w-5 h-5 mr-1 text-slate-500"></i>
-                                Pedido ${request.id}
-                            </h3>
-                            <span class="px-3 py-1 text-xs font-bold rounded-full text-white ${statusBadgeBg} shadow-md uppercase">
-                                ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                            </span>
-                        </div>
-
-                        <!-- Detalhes do Usuário --><div class="flex items-center space-x-4 mb-4">
-                            <!-- Iniciais do Usuário --><div class="w-14 h-14 flex items-center justify-center bg-indigo-900/50 rounded-full text-xl font-bold text-indigo-400 flex-shrink-0 border-2 border-indigo-700/50">
-                                ${getInitials(request.name)}
-                            </div>
-                            <div>
-                                <p class="text-xl font-semibold text-white">${request.name}</p>
-                                <p class="text-sm text-slate-400 mt-1">@Instagram: ${request.username}</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2 text-sm text-slate-400 mb-6 pb-4 border-b border-slate-700/50">
-                            <p class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2 text-teal-400"></i> Email: ${censorEmail(request.email)}</p>
-                            <p class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-2 text-teal-400"></i> Data de Solicitação: ${request.date}</p>
-                        </div>
-
-                        <!-- Barra de Progresso e Ação -->${renderProgressBar(request)}
-                    </div>
+            const detailTextColor = 'text-slate-300';
+            
+            let detailContent;
+            
+            if (request.status === 'sucesso') {
+                // Conteúdo para status SUCESSO: Valor e Pagamento
+                detailContent = `
+                    <p class="flex items-center">
+                        <i data-lucide="dollar-sign" class="w-3 h-3 mr-2 text-teal-400"></i>
+                        Valor: <span class="ml-1 font-bold text-white">${formatCost(request.cost)}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <i data-lucide="credit-card" class="w-3 h-3 mr-2 text-teal-400"></i>
+                        Pagamento: <span class="ml-1">PIX ou Cartão</span>
+                    </p>
                 `;
-                container.innerHTML += cardHtml;
-            });
-            lucide.createIcons(); // Recarrega ícones após injeção de HTML
+            } else {
+                // Conteúdo para outros status: E-mail e Data de Solicitação
+                // Ícones de e-mail e calendário mudam para cinza (text-slate-500)
+                detailContent = `
+                    <p class="flex items-center">
+                        <i data-lucide="mail" class="w-3 h-3 mr-2 text-slate-500"></i>
+                        E-mail: <span class="ml-1">${censorEmail(request.email)}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <i data-lucide="calendar" class="w-3 h-3 mr-2 text-slate-500"></i>
+                        Solicitação: <span class="ml-1">${request.date}</span>
+                    </p>
+                `;
+            }
+            
+            // NOTA SOBRE EXCLUSÃO DE DADOS (apenas para status de ERRO)
+            const deletionNote = request.status === 'erro' ? 
+                `<p class="text-[10px] text-red-400/80 mt-2 text-center border-t border-red-900/50 pt-1">
+                    <i data-lucide="alert-triangle" class="w-3 h-3 inline-block mr-1"></i>
+                    Os dados deste pedido serão excluídos automaticamente em 30 dias.
+                </p>` : '';
+
+
+            const html = `
+                <div class="bg-[var(--color-bg-card)] p-5 rounded-xl border ${statusColor} ${shadow} hover:scale-[1.01] transition duration-300">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/50">
+                        
+                        <!-- LAYOUT DO PEDIDO -->
+                        <div class="flex flex-col items-start leading-none">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PEDIDO</span>
+                            <h3 class="text-base font-semibold text-white mt-0.5">#${request.id}</h3> 
+                        </div>
+
+                        <!-- BADGE DE STATUS COM COR DINÂMICA -->
+                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full text-white ${badgeColor} uppercase tracking-wider">
+                            ${request.status}
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-900/50 rounded-full text-sm font-bold text-indigo-400 border border-indigo-700/50">
+                            ${getInitials(request.name)}
+                        </div>
+                        <div class="overflow-hidden">
+                            <p class="text-base font-semibold text-white truncate">${request.name}</p>
+                            <!-- BOX AO REDOR DO NOME DE USUÁRIO / PERFIL -->
+                            <div class="text-xs mt-1">
+                                ${renderPlatformDetails(request)}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DETALHES DINÂMICOS (Cinza Claro) -->
+                    <div class="space-y-1 text-xs pb-3 ${detailTextColor}">
+                        ${detailContent}
+                    </div>
+
+                    ${renderProgressBarModern(request)}
+                    
+                    <!-- NOTA DE EXCLUSÃO DE DADOS -->
+                    ${deletionNote}
+                </div>
+            `;
+            document.getElementById('requests-container').innerHTML += html;
         }
 
-        // Funções de Filtragem
+        // Funções do Modal
+        function openModal(id, cost, username) {
+            const modal = document.getElementById('payment-modal');
+            const details = document.getElementById('modal-details');
+            
+            // 2. Adiciona a classe no-scroll ao body
+            document.body.classList.add('no-scroll');
+
+            details.innerHTML = `
+                <p class="flex justify-between items-center text-sm">
+                    <span>Pedido:</span>
+                    <span class="font-bold text-white text-base">#${id}</span>
+                </p>
+                <p class="flex justify-between items-center text-sm">
+                    <span>Usuário (@):</span>
+                    <span class="font-bold text-white text-base">${username}</span>
+                </p>
+                <div class="h-px bg-slate-700 my-2"></div>
+                <p class="flex justify-between items-center text-lg text-emerald-400">
+                    <span class="font-bold">Total a Pagar:</span>
+                    <span class="font-extrabold">${cost}</span>
+                </p>
+                <p class="flex justify-between items-center text-sm mt-3">
+                    <span>Métodos Aceitos:</span>
+                    <span class="font-medium text-white flex items-center space-x-2">
+                        <i data-lucide="credit-card" class="w-4 h-4 text-teal-400"></i>
+                        <i data-lucide="scan" class="w-4 h-4 text-teal-400"></i>
+                        <span>PIX / Cartão</span>
+                    </span>
+                </p>
+            `;
+            lucide.createIcons();
+            modal.classList.add('open');
+        }
+
+        // 1. Alterada a lógica de fechamento para só fechar com o botão 'X'
+        function closeModal() {
+            document.getElementById('payment-modal').classList.remove('open');
+            // 2. Remove a classe no-scroll do body
+            document.body.classList.remove('no-scroll');
+        }
+        
+        // Função atualizada para redirecionar para o chat do Instagram
+        function redirectToChat() {
+            closeModal();
+            const chatLink = 'https://www.instagram.com/direct/t/17849467655496651/';
+            window.open(chatLink, '_blank');
+        }
+        // Fim das Funções do Modal
+
+
+        function renderRequests(list) {
+            const container = document.getElementById('requests-container');
+            const noRes = document.getElementById('no-results');
+            container.innerHTML = '';
+            if (list.length === 0) { noRes.classList.remove('hidden'); return; }
+            noRes.classList.add('hidden');
+            
+            // Ordena a lista antes de renderizar
+            const sortedList = [...list].sort(sortRequests);
+            
+            sortedList.forEach(renderRequestCard);
+            lucide.createIcons();
+        }
+
         function applyFilters() {
-            const nameFilter = document.getElementById('filter-name').value.toLowerCase();
-            const statusFilter = document.getElementById('filter-status').value.toLowerCase();
-
-            const filteredRequests = recoveryRequests.filter(request => {
-                const matchesName = request.name.toLowerCase().includes(nameFilter) || request.username.toLowerCase().includes(nameFilter);
-                const matchesStatus = statusFilter === "" || request.status === statusFilter;
-                return matchesName && matchesStatus;
-            });
-
-            renderRequests(filteredRequests);
+            const name = document.getElementById('filter-name').value.toLowerCase();
+            const status = document.getElementById('filter-status').value.toLowerCase();
+            const filtered = recoveryRequests.filter(r => 
+                (r.name.toLowerCase().includes(name) || r.username.toLowerCase().includes(name)) &&
+                (status === "" || r.status === status)
+            );
+            
+            // Renderiza os resultados filtrados e ordenados
+            renderRequests(filtered);
         }
-
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
             applyFilters();
         }
-
         function initTracker() {
-            // Renderiza todos os pedidos ao carregar
+            // Renderiza todos os pedidos iniciais, já ordenados.
             renderRequests(recoveryRequests);
-            lucide.createIcons();
         }
     </script>
 </body>
