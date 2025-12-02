@@ -29,6 +29,10 @@
             color: var(--color-light);
             min-height: 100vh;
         }
+        /* Nova classe para bloquear a rolagem */
+        body.no-scroll {
+            overflow: hidden;
+        }
         /* Custom Scrollbar Styling */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -47,7 +51,7 @@
         }
 
         /* ------------------------------------------- */
-        /* CSS ESTRUTURAL DA BARRA DE PROGRESSO       */
+        /* CSS ESTRUTURAL DA BARRA DE PROGESSO       */
         /* ------------------------------------------- */
         
         .progress-wrapper {
@@ -294,7 +298,8 @@
     </footer>
 
     <!-- Modal de Pagamento -->
-    <div id="payment-modal" class="modal-overlay" onclick="closeModal(event)">
+    <!-- Removida a função closeModal do onclick para bloquear fechamento externo -->
+    <div id="payment-modal" class="modal-overlay"> 
         <div class="modal-content p-6">
             <div class="flex justify-between items-center pb-4 border-b border-slate-700">
                 <!-- Título do modal alterado -->
@@ -404,11 +409,13 @@
                 let currentLabel = stage.label;
                 if (isLastStep) {
                     if (request.status === 'sucesso') {
-                        currentLabel = "SUCESSO";
+                        // Rótulo da barra: Sucesso
+                        currentLabel = "Sucesso"; 
                     } else if (request.status === 'erro') {
-                        currentLabel = "ERRO";
+                        // Rótulo da barra: Erro
+                        currentLabel = "Erro"; 
                     } else {
-                        currentLabel = "RESULTADO";
+                        currentLabel = "Resultado";
                     }
                 }
 
@@ -458,7 +465,8 @@
             // Botão de resgate com o texto simplificado e função para abrir o modal
             const actionContent = (request.status === 'sucesso' ? 
                 `<button onclick="openModal('${request.id}', '${formatCost(request.cost)}', '${request.username}')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-sm">
-                    RESGATAR por ${formatCost(request.cost)}
+                    <i data-lucide="key" class="w-4 h-4 mr-2"></i>
+                    Resgatar por ${formatCost(request.cost)}
                 </button>` 
             : request.status === 'erro' ? 
                 `<div class="p-2.5 bg-red-900/20 border border-red-500/30 rounded-lg text-red-300 text-xs font-medium">
@@ -491,10 +499,30 @@
             let badgeColor = 'bg-slate-600';
             let shadow = 'card-shadow';
 
-            if (request.status === 'sucesso') { statusColor = 'border-emerald-500'; badgeColor = 'bg-emerald-600'; shadow = 'status-success-shadow'; }
-            else if (request.status === 'erro') { statusColor = 'border-red-500'; badgeColor = 'bg-red-600'; shadow = 'status-error-shadow'; }
-            else if (request.status === 'analise') { statusColor = 'border-indigo-500'; badgeColor = 'bg-indigo-600'; }
-            else if (request.status === 'recuperar') { statusColor = 'border-orange-500'; badgeColor = 'bg-orange-500'; }
+            // Lógica para cor da borda: Roxa para Sucesso e Erro. Original para Progresso.
+            if (request.status === 'sucesso' || request.status === 'erro') {
+                statusColor = 'border-indigo-500'; // Cor Roxa (Indigo)
+            } else if (request.status === 'analise') {
+                statusColor = 'border-indigo-500'; // Mantido Indigo para Análise
+            } else if (request.status === 'recuperar') {
+                statusColor = 'border-orange-500'; // Mantido Laranja para Recuperar
+            } else {
+                 statusColor = 'border-slate-600'; // Aguardando
+            }
+            
+            // Lógica para cor do Badge e Sombra (MANTIDA para os status em andamento/finalizados)
+            if (request.status === 'sucesso') { 
+                badgeColor = 'bg-emerald-600'; 
+                shadow = 'status-success-shadow'; 
+            } else if (request.status === 'erro') { 
+                badgeColor = 'bg-red-600'; 
+                shadow = 'status-error-shadow'; 
+            } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
+                // NOVO: Borda e fundo cinza escuro/chumbo para status de progresso
+                statusColor = 'border-slate-700';
+                badgeColor = 'bg-slate-700'; 
+            }
+
 
             const displayUsername = censorUsername(request.username, request.status);
             const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
@@ -544,9 +572,11 @@
                         <!-- NOVO LAYOUT DO PEDIDO (Bold reduzido) -->
                         <div class="flex flex-col items-start leading-none">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PEDIDO</span>
-                            <h3 class="text-lg font-semibold text-white mt-0.5">#${request.id}</h3>
+                            <!-- Alterado de text-lg para text-base -->
+                            <h3 class="text-base font-semibold text-white mt-0.5">#${request.id}</h3> 
                         </div>
 
+                        <!-- BADGE DE STATUS COM COR DINÂMICA -->
                         <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full text-white ${badgeColor} uppercase tracking-wider">
                             ${request.status}
                         </span>
@@ -581,6 +611,9 @@
             const modal = document.getElementById('payment-modal');
             const details = document.getElementById('modal-details');
             
+            // 2. Adiciona a classe no-scroll ao body
+            document.body.classList.add('no-scroll');
+
             details.innerHTML = `
                 <p class="flex justify-between items-center text-sm">
                     <span>Pedido:</span>
@@ -608,10 +641,11 @@
             modal.classList.add('open');
         }
 
-        function closeModal(event) {
-            // Fecha apenas se o clique for no overlay e não no conteúdo
-            if (event && event.target.id !== 'payment-modal') return; 
+        // 1. Alterada a lógica de fechamento para só fechar com o botão 'X'
+        function closeModal() {
             document.getElementById('payment-modal').classList.remove('open');
+            // 2. Remove a classe no-scroll do body
+            document.body.classList.remove('no-scroll');
         }
         
         // Função atualizada para redirecionar para o chat do Instagram
