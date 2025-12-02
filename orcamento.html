@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKEA BRASIL | Orçamento Grátis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Variáveis de Cores e Fontes (Mantidas) */
+        :root {
+            --color-primary: #4f46e5; /* Indigo */
+            --color-secondary: #14b8a6; /* Teal */
+            --color-dark: #070e17; /* Very Dark Blue */
+            --color-bg-card: #151f2e;
+            --color-light: #f8fafc;
+            --color-success: #10b981; /* Emerald */
+            --color-error: #ef4444; /* Red */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            background-image: radial-gradient(circle at 1px 1px, rgba(30, 41, 59, 0.4) 1px, transparent 0);
+            background-size: 20px 20px;
+            color: var(--color-light);
+            min-height: 100vh;
+        }
+        /* CLASSE CRUCIAL: Impede a rolagem do corpo da página quando o modal está aberto */
+        body.modal-open {
+            overflow: hidden;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        
+        /* Estilos de Formulário */
+        .form-card {
+            background-color: var(--color-bg-card);
+            border: 1px solid #29384e;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+        .form-input {
+            background-color: #0f172a;
+            border-color: #475569;
+            color: var(--color-light);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Estilo do Botão de Envio (Teal/Secundário) */
+        .submit-btn {
+            background: linear-gradient(to right, var(--color-secondary), #2dd4bf);
+            color: var(--color-dark);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+        }
+        .submit-btn:hover {
+            background: linear-gradient(to right, #2dd4bf, #5eead4);
+            box-shadow: 0 6px 20px rgba(20, 184, 166, 0.6);
+            transform: translateY(-1px);
+        }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Hero CTA button (Indigo) */
+        .hero-cta {
+            background: linear-gradient(to right, var(--color-primary), #6366f1);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+        .hero-cta:hover {
+            background: linear-gradient(to right, #6366f1, #818cf8);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
+            transform: translateY(-1px);
+        }
+
+        /* Animação para o título */
+        .animated-title {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInSlideDown 0.8s ease-out forwards;
+        }
+        @keyframes fadeInSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilo do Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid var(--color-secondary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Estilos de Transição de Conteúdo */
+        .content-transition {
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        /* --- NOVO ESTILO: Modal Full-Screen --- */
+        #budget-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95); /* Fundo bem escuro */
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #budget-modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content-full {
+            background-color: var(--color-bg-card);
+            border: 1px solid var(--color-secondary);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(20, 184, 166, 0.4);
+            max-width: 90%;
+            width: 550px; /* Um pouco maior que o formulário para destaque */
+            transform: translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #budget-modal-overlay.open .modal-content-full {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body onload="lucide.createIcons(); initForm();">
+
+    <!-- Header (Mantido) -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-teal-400 text-base">HACKEA</span>
+                        <span class="text-white text-base -mt-1">BRASIL</span>
+                    </div>
+                </a>
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                    <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
+                    <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
+                    <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
+                    <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
+                </nav>
+                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
+                    <i data-lucide="home" class="w-3 h-3 mr-1"></i>
+                    Início
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-10 lg:py-16">
+        <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold text-white mb-4 text-center animated-title flex items-center justify-center">
+                <i data-lucide="calculator" class="w-8 h-8 mr-3 text-teal-400"></i>
+                Orçamento de Serviço Grátis
+            </h1>
+            <p class="text-center text-slate-400 max-w-lg mx-auto mb-10">Preencha os campos abaixo para receber uma estimativa do valor da recuperação da sua conta.</p>
+
+            <!-- CONTAINER DO FORMULÁRIO (VISÍVEL NO INÍCIO) -->
+            <div id="budget-content-wrapper" class="relative">
+                
+                <!-- 1. FORMULÁRIO DE ORÇAMENTO DETALHADO -->
+                <form class="form-card p-6 rounded-xl shadow-xl content-transition" id="budget-form">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <i data-lucide="send" class="w-5 h-5 mr-2 text-primary"></i>
+                        Detalhes da Solicitação
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Nome para Contato (Obrigatório) -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-slate-300 mb-1">Seu Nome</label>
+                            <input type="text" id="name" name="name" placeholder="Seu nome completo" required class="form-input w-full p-3 rounded-lg">
+                        </div>
+                        
+                        <!-- Seleção da Plataforma (1) (Obrigatório) -->
+                        <div class="relative">
+                            <label for="platform" class="block text-sm font-medium text-slate-300 mb-1">Plataforma da Conta</label>
+                            <select id="platform" name="platform" onchange="updateDynamicFields()" required class="form-input w-full p-3 rounded-lg appearance-none cursor-pointer">
+                                <option value="" disabled selected>Selecione a plataforma...</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="email">E-mail</option>
+                                <option value="jogos">Jogos</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="twitter">Twitter</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                        
+                        <!-- O Que Aconteceu? (2) (Obrigatório) -->
+                        <div class="relative">
+                            <label for="issue" class="block text-sm font-medium text-slate-300 mb-1">O que aconteceu com a conta?</label>
+                            <select id="issue" name="issue" required class="form-input w-full p-3 rounded-lg appearance-none cursor-pointer">
+                                <option value="" disabled selected>Selecione o problema...</option>
+                                <option value="hacked">Hackeado</option>
+                                <option value="lost_pass">Perdi Senha</option>
+                                <option value="suspended">Suspensão / Banimento</option>
+                                <option value="other">Outro</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                        
+                        <!-- NOVO: Tempo de Conta (Obrigatório) -->
+                        <div class="relative">
+                            <label for="account-age" class="block text-sm font-medium text-slate-300 mb-1">Tempo de Criação da Conta</label>
+                            <select id="account-age" name="account-age" required class="form-input w-full p-3 rounded-lg appearance-none cursor-pointer">
+                                <option value="" disabled selected>Selecione o tempo...</option>
+                                <option value="less_1y">Menos de 1 ano</option>
+                                <option value="1_3y">1 a 3 anos</option>
+                                <option value="3_5y">3 a 5 anos</option>
+                                <option value="5y_plus">Mais de 5 anos</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+
+                        <!-- CAMPOS DINÂMICOS (3 & 4) -->
+                        
+                        <!-- Container para o campo de Métrica (Seguidores/Amigos/Email) -->
+                        <div id="metric-container" class="hidden">
+                            <!-- Injetado via JS -->
+                        </div>
+
+                        <!-- Container para o campo de Identificador (Usuário/Link/Email) -->
+                        <div id="identifier-container" class="hidden">
+                            <!-- Injetado via JS -->
+                        </div>
+                        
+                        <!-- Botão de Envio / Carregamento -->
+                        <button type="submit" id="submit-button" class="submit-btn w-full py-3 mt-4 rounded-lg flex items-center justify-center text-base transition-opacity duration-300">
+                            <i data-lucide="search" class="w-5 h-5 mr-2"></i>
+                            VERIFICAR ORÇAMENTO
+                        </button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Mantido) -->
+    <footer>
+        <div class="bg-slate-900 border-t border-indigo-900 py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
+                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                    <span>HACKEA BRASIL</span>
+                </div>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- NOVO: MODAL FULL SCREEN PARA RESULTADO DO ORÇAMENTO -->
+    <div id="budget-modal-overlay">
+        <div class="modal-content-full p-8 relative">
+            
+            <!-- Botão de Fechar Modal (Recarrega a página para reiniciar o formulário) -->
+            <button onclick="closeBudgetModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition">
+                 <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <!-- Container para o Loading ou Resultados Finais -->
+            <div id="modal-result-content">
+                <!-- Conteúdo injetado via JS -->
+            </div>
+
+            <!-- Botão de Solicitação Final (Fixo no template de resultado) -->
+            <a href="AGENDAMENTO ONLINE – Preencher o formulário" id="final-request-button" class="submit-btn w-full py-3 mt-6 rounded-lg flex items-center justify-center text-base hero-cta" target="_blank">
+                <i data-lucide="check-circle" class="w-5 h-5 mr-2"></i>
+                FAZER SOLICITAÇÃO GRÁTIS
+            </a>
+        </div>
+    </div>
+    <!-- FIM DO MODAL FULL SCREEN -->
+
+    <!-- Script para submissão do formulário e lógica do orçamento -->
+    <script>
+        // Função para formatar o custo para Real Brasileiro (R$)
+        function formatCost(cost) {
+            return cost.toLocaleString('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            });
+        }
+        
+        // --- NOVO: Função para fechar o modal e recarregar a página ---
+        function closeBudgetModal() {
+            document.body.classList.remove('modal-open');
+            document.getElementById('budget-modal-overlay').classList.remove('open');
+            window.location.reload(); // Recarrega a página para resetar o formulário
+        }
+
+
+        /**
+         * Calcula o valor do orçamento com base nas regras fornecidas pelo usuário.
+         * O valor total é limitado entre R$ 27,90 e R$ 196,90.
+         */
+        function calculateBudget() {
+            const min_value = 27.90;
+            const max_value = 196.90;
+            
+            // 1. Definições de Custos e Multiplicadores
+            const ISSUE_COSTS = {
+                hacked: 50.00,
+                suspended: 60.00,
+                lost_pass: 30.00,
+                other: 55.00, // Padrão para outras complexidades
+            };
+            
+            const AGE_MULTIPLIERS = {
+                less_1y: 1.0,
+                '1_3y': 1.2,
+                '3_5y': 1.4,
+                '5y_plus': 1.6,
+            };
+            
+            // Custos aditivos baseados nos tiers de seguidores/amigos
+            const METRIC_COSTS = {
+                'super_barato': 5.00,   // < 50
+                'barato': 15.00,        // 50 - 150
+                'baixo': 25.00,         // 150 - 300
+                'regular': 40.00,       // 300 - 1000
+                'medio': 60.00,         // 1000 - 2000
+                'alto': 85.00,          // 2000 - 5000
+                'caro': 110.00,         // 5000 - 10000
+                'bem_caro': 140.00,     // > 10000
+                'default': 40.00        // Padrão para Email e Jogos
+            };
+
+            // 2. Leitura de Inputs
+            const issueType = document.getElementById('issue').value;
+            const accountAge = document.getElementById('account-age').value;
+            const platform = document.getElementById('platform').value;
+
+            let metricValue = 0;
+            let metricTier = 'default';
+
+            // Determina a métrica (seguidores/amigos)
+            if (platform === 'instagram' || platform === 'tiktok' || platform === 'twitter') {
+                const input = document.getElementById('metric-followers');
+                metricValue = parseInt(input ? input.value : 0) || 0;
+            } else if (platform === 'facebook') {
+                const input = document.getElementById('metric-friends');
+                metricValue = parseInt(input ? input.value : 0) || 0;
+            } 
+            
+            // 3. Determina o Tier da Métrica (usado para seguidores e amigos)
+            if (platform !== 'email' && platform !== 'jogos') {
+                if (metricValue < 50) metricTier = 'super_barato';
+                else if (metricValue <= 150) metricTier = 'barato';
+                else if (metricValue <= 300) metricTier = 'baixo';
+                else if (metricValue <= 1000) metricTier = 'regular';
+                else if (metricValue <= 2000) metricTier = 'medio';
+                else if (metricValue <= 5000) metricTier = 'alto';
+                else if (metricValue <= 10000) metricTier = 'caro';
+                else if (metricValue > 10000) metricTier = 'bem_caro';
+            }
+
+            // 4. Cálculo do Custo Inicial (Base por tipo de problema)
+            let totalCost = ISSUE_COSTS[issueType] || ISSUE_COSTS['other'];
+            
+            // 5. Aplica Multiplicador por Idade da Conta
+            const ageMultiplier = AGE_MULTIPLIERS[accountAge] || AGE_MULTIPLIERS['1_3y'];
+            totalCost *= ageMultiplier;
+
+            // 6. Adiciona Custo Aditivo da Métrica
+            const metricCost = METRIC_COSTS[metricTier] || METRIC_COSTS['default'];
+            totalCost += metricCost;
+            
+            // 7. Clamp (Limitar) o valor final
+            if (totalCost < min_value) {
+                totalCost = min_value;
+            }
+            if (totalCost > max_value) {
+                totalCost = max_value;
+            }
+
+            return parseFloat(totalCost.toFixed(2));
+        }
+
+        // Conteúdo do Loading
+        const loadingHtml = `
+            <div class="flex flex-col items-center justify-center h-48">
+                <div class="spinner mb-4"></div>
+                <p class="text-lg font-semibold text-white">Verificando Complexidade da Recuperação...</p>
+                <p class="text-sm text-slate-400 mt-1">Estimativa de 4 segundos.</p>
+            </div>
+        `;
+        
+        // Helper para limpar o erro visual
+        function clearIdentifierError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) errorElement.classList.add('hidden');
+        }
+
+        // Função de validação de formato (para evitar nomes completos em campos de usuário e validar email)
+        function validateIdentifier() {
+            const platform = document.getElementById('platform').value;
+            let identifierInput, errorElement, emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            const platformsToCheckForSpaces = ['instagram', 'tiktok', 'twitter'];
+
+            // 1. Validação de E-mail (Plataforma 'email')
+            if (platform === 'email') {
+                identifierInput = document.getElementById('identifier-email');
+                errorElement = document.getElementById('email-error');
+
+                if (!emailPattern.test(identifierInput.value.trim())) {
+                     errorElement.classList.remove('hidden');
+                     identifierInput.focus();
+                     return false;
+                }
+                errorElement.classList.add('hidden');
+                return true; 
+            }
+
+            // 2. Validação de Nome de Usuário (para plataformas sociais/jogos)
+            
+            if (platform === 'instagram' || platform === 'tiktok' || platform === 'twitter') {
+                identifierInput = document.getElementById('identifier-username');
+                errorElement = document.getElementById('identifier-error');
+            } else if (platform === 'facebook') {
+                identifierInput = document.getElementById('identifier-link');
+                errorElement = document.getElementById('identifier-error');
+            } else if (platform === 'jogos') {
+                identifierInput = document.getElementById('identifier-gameid');
+                errorElement = document.getElementById('identifier-error');
+            } else {
+                return true; // Sai se não precisar de identificador específico
+            }
+            
+            if (!identifierInput) return true;
+            
+            const identifierValue = identifierInput.value.trim();
+            
+            // Verifica se há espaços (principalmente para Instagram/TikTok/Twitter)
+            if (platformsToCheckForSpaces.includes(platform) && identifierValue.includes(' ')) {
+                if (errorElement) errorElement.classList.remove('hidden');
+                identifierInput.focus();
+                return false;
+            }
+
+            if (errorElement) errorElement.classList.add('hidden');
+            return true;
+        }
+
+
+        // Função principal para atualizar os campos dinâmicos
+        function updateDynamicFields() {
+            const platform = document.getElementById('platform').value;
+            const metricContainer = document.getElementById('metric-container');
+            const identifierContainer = document.getElementById('identifier-container');
+            
+            // Variáveis de HTML para injetar
+            let metricHtml = '';
+            let identifierHtml = '';
+            
+            // --- Lógica do Campo de Métrica (3) ---
+            if (platform === 'instagram' || platform === 'tiktok' || platform === 'twitter') {
+                metricHtml = `
+                    <label for="metric-followers" class="block text-sm font-medium text-slate-300 mb-1">Quantidade de Seguidores (Aprox.)</label>
+                    <input type="number" id="metric-followers" name="metric-followers" placeholder="Ex: 5000" min="0" required class="form-input w-full p-3 rounded-lg">
+                `;
+            } else if (platform === 'facebook') {
+                metricHtml = `
+                    <label for="metric-friends" class="block text-sm font-medium text-slate-300 mb-1">Quantidade de Amigos (Aprox.)</label>
+                    <input type="number" id="metric-friends" name="metric-friends" placeholder="Ex: 800" min="0" required class="form-input w-full p-3 rounded-lg">
+                `;
+            } else if (platform === 'jogos') {
+                const gameList = ['League of Legends', 'Free Fire', 'Fortnite', 'Roblox', 'Outro'];
+                metricHtml = `
+                    <label for="metric-game" class="block text-sm font-medium text-slate-300 mb-1">Qual Jogo?</label>
+                    <select id="metric-game" name="metric-game" required class="form-input w-full p-3 rounded-lg appearance-none cursor-pointer" onchange="toggleOtherGameInput()">
+                        <option value="" disabled selected>Selecione o jogo ou "Outro"...</option>
+                        ${gameList.map(game => `<option value="${game}">${game}</option>`).join('')}
+                    </select>
+                `;
+            } else if (platform === 'email') {
+                 // Email é a métrica E o identificador
+                 metricHtml = `
+                    <label for="identifier-email" class="block text-sm font-medium text-slate-300 mb-1">Nome do E-mail</label>
+                    <input type="email" id="identifier-email" name="identifier-email" placeholder="seuemail@exemplo.com" required class="form-input w-full p-3 rounded-lg" oninput="clearIdentifierError('email-error')">
+                    <p id="email-error" class="text-xs text-red-400 mt-1 hidden">Por favor, insira um formato de e-mail válido (ex: seu.nome@exemplo.com).</p>
+                `;
+            }
+            
+            // --- Lógica do Campo de Identificador (4) ---
+            
+            // Campo de texto genérico para Outros Jogos (Sempre existe, mas é escondido)
+            identifierHtml += `
+                <div id="other-game-input" class="hidden">
+                    <label for="other-game-name" class="block text-sm font-medium text-slate-300 mb-1">Nome do Outro Jogo</label>
+                    <input type="text" id="other-game-name" name="other-game-name" placeholder="Digite o nome do jogo..." class="form-input w-full p-3 rounded-lg">
+                </div>
+            `;
+
+
+            if (platform === 'instagram' || platform === 'tiktok' || platform === 'twitter') {
+                identifierHtml += `
+                    <div>
+                        <label for="identifier-username" class="block text-sm font-medium text-slate-300 mb-1">Nome de Usuário (Ex: @hackea_brasil)</label>
+                        <input type="text" id="identifier-username" name="identifier-username" placeholder="Ex: @hackea_brasil" required class="form-input w-full p-3 rounded-lg" oninput="clearIdentifierError('identifier-error')">
+                        <p id="identifier-error" class="text-xs text-red-400 mt-1 hidden">Por favor, insira o NOME DE USUÁRIO EXATO (ex: junin), e não o nome de exibição (ex: Junior Andrade).</p>
+                    </div>
+                `;
+            } else if (platform === 'facebook') {
+                identifierHtml += `
+                    <div>
+                        <label for="identifier-link" class="block text-sm font-medium text-slate-300 mb-1">Link ou Usuário do Facebook</label>
+                        <input type="text" id="identifier-link" name="identifier-link" placeholder="Ex: facebook.com/seunome" required class="form-input w-full p-3 rounded-lg" oninput="clearIdentifierError('identifier-error')">
+                         <p id="identifier-error" class="text-xs text-red-400 mt-1 hidden">Por favor, insira o link completo do perfil ou o nome de usuário exclusivo.</p>
+                    </div>
+                `;
+            } else if (platform === 'jogos') {
+                identifierHtml += `
+                    <div>
+                        <label for="identifier-gameid" class="block text-sm font-medium text-slate-300 mb-1">ID da Conta/Usuário no Jogo</label>
+                        <input type="text" id="identifier-gameid" name="identifier-gameid" placeholder="Ex: 123456789 ou Nome do Jogador" required class="form-input w-full p-3 rounded-lg" oninput="clearIdentifierError('identifier-error')">
+                        <p id="identifier-error" class="text-xs text-red-400 mt-1 hidden">Por favor, insira o ID ou nome de usuário exato da conta do jogo.</p>
+                    </div>
+                `;
+            } else if (platform === 'email') {
+                // Email já foi tratado no campo de métrica, mas garantimos que não haja duplicidade.
+                identifierHtml += ''; 
+            }
+            
+            // Injeção e Visibilidade
+            
+            // Métrica
+            metricContainer.innerHTML = metricHtml;
+            metricContainer.classList.toggle('hidden', !metricHtml);
+
+            // Identificador
+            identifierContainer.innerHTML = identifierHtml;
+            // O container do identificador deve estar visível se houver identificador e não for email (que já está em metricContainer)
+            identifierContainer.classList.toggle('hidden', (platform === 'email' || !identifierHtml.trim())); 
+            
+            // Recria ícones Lucide
+            lucide.createIcons();
+        }
+
+        // Função para mostrar/esconder o campo de "Outro Jogo"
+        function toggleOtherGameInput() {
+            const gameSelect = document.getElementById('metric-game');
+            const otherGameDiv = document.getElementById('other-game-input');
+            const otherGameInput = document.getElementById('other-game-name');
+
+            if (gameSelect && otherGameDiv && otherGameInput) {
+                if (gameSelect.value === 'Outro') {
+                    otherGameDiv.classList.remove('hidden');
+                    otherGameInput.setAttribute('required', 'required'); // Torna obrigatório
+                } else {
+                    otherGameDiv.classList.add('hidden');
+                    otherGameInput.removeAttribute('required'); // Remove obrigatoriedade
+                }
+            }
+        }
+
+
+        // Função de submissão do formulário
+        document.getElementById('budget-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 0. Validação de Formato do Identificador
+            if (!validateIdentifier()) {
+                return;
+            }
+
+            // 0.1. Validação de Jogo "Outro"
+            const platform = document.getElementById('platform').value;
+            if (platform === 'jogos' && document.getElementById('metric-game').value === 'Outro' && document.getElementById('other-game-name').value.trim() === '') {
+                alert("Por favor, digite o nome do outro jogo.");
+                document.getElementById('other-game-name').focus();
+                return;
+            }
+            
+            
+            const form = document.getElementById('budget-form');
+            const modalOverlay = document.getElementById('budget-modal-overlay');
+            const modalContent = document.getElementById('modal-result-content');
+            const finalRequestButton = document.getElementById('final-request-button');
+            
+            // Pega dados do formulário para uso posterior
+            const name = document.getElementById('name').value;
+            
+            // --- INÍCIO DA TRANSIÇÃO E LOADING (DENTRO DO MODAL) ---
+            
+            // 1. Oculta o formulário principal (para o efeito de transição)
+            form.classList.add('opacity-0');
+            
+            // 2. Mostra o modal full-screen e injeta o spinner
+            modalOverlay.classList.add('open');
+            document.body.classList.add('modal-open'); // BLOQUEIA A ROLAGEM
+            modalContent.innerHTML = loadingHtml;
+            
+            // 3. Simular 4 segundos de processamento
+            setTimeout(() => {
+                // 4. Gerar orçamento e formatar
+                const calculatedValue = calculateBudget();
+                const formattedValue = formatCost(calculatedValue);
+                
+                // 5. Configurar o link de solicitação final (URL FORNECIDA)
+                finalRequestButton.href = 'AGENDAMENTO ONLINE – Preencher o formulário';
+
+                // 6. INJETAR O CONTEÚDO FINAL
+                modalContent.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i data-lucide="wallet" class="w-5 h-5 mr-2 text-emerald-400"></i>
+                        Seu Orçamento Detalhado
+                    </h3>
+                    
+                    <p class="text-slate-300 mb-2">O valor estimado para a recuperação da sua conta é de:</p>
+                    
+                    <!-- Valor Dinâmico -->
+                    <p class="text-5xl font-extrabold text-teal-400 mb-4">${formattedValue}</p>
+                    
+                    <!-- Garantia -->
+                    <div class="border-t border-slate-700 pt-4 mb-2">
+                        <p class="text-base font-semibold text-emerald-400 flex items-center">
+                            <i data-lucide="thumbs-up" class="w-5 h-5 mr-2"></i>
+                            Você só paga quando a conta for recuperada.
+                        </p>
+                    </div>
+                `;
+                lucide.createIcons();
+                
+                // O formulário foi removido da DOM no HTML, mas garantimos que ele não esteja visível
+                // Se a página for recarregada, o formulário reaparece (botão X)
+
+            }, 4000); // 4 segundos de atraso
+        });
+        
+        // Função de inicialização
+        function initForm() {
+            // Garante que os campos dinâmicos sejam atualizados se houver valor inicial
+            updateDynamicFields();
+        }
+    </script>
+</body>
+</html>
