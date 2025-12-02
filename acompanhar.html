@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE ahtml>
 <html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -247,8 +247,8 @@
     <main class="py-10 lg:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-extrabold text-white mb-8 text-center sm:text-left">
-                <i data-lucide="list-checks" class="w-7 h-7 inline-block mr-2 text-indigo-400"></i>
-                Acompanhamento de Pedidos
+                <!-- Ícone removido aqui -->
+                Acompanhe a Sua Conta
             </h1>
 
             <!-- Filtros -->
@@ -545,21 +545,25 @@
             let badgeColor = 'bg-slate-600';
             let shadow = 'card-shadow';
 
-            // Lógica para cor da borda: Roxa para Sucesso e Erro. Original para Progresso.
-            if (request.status === 'sucesso' || request.status === 'erro') {
-                statusColor = 'border-indigo-500'; // Cor Roxa (Indigo)
-                shadow = request.status === 'sucesso' ? 'status-success-shadow' : 'status-error-shadow';
+            // Lógica para cor da borda:
+            if (request.status === 'sucesso') {
+                statusColor = 'border-indigo-500'; // Sucesso: Roxa
+                shadow = 'status-success-shadow';
+            } else if (request.status === 'erro') {
+                // Borda VERMELHA para status de erro
+                statusColor = 'border-[var(--color-error)]'; 
+                shadow = 'status-error-shadow';
+            } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
+                // Progresso: Borda cinza
+                statusColor = 'border-slate-700';
+                badgeColor = 'bg-slate-700'; 
             }
             
-            // Lógica para cor do Badge: Cinza escuro para status de progresso
+            // Lógica para cor do Badge:
             if (request.status === 'sucesso') { 
                 badgeColor = 'bg-emerald-600'; 
             } else if (request.status === 'erro') { 
                 badgeColor = 'bg-red-600'; 
-            } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
-                // NOVO: Borda e fundo cinza escuro/chumbo para status de progresso
-                statusColor = 'border-slate-700';
-                badgeColor = 'bg-slate-700'; 
             }
 
             const detailTextColor = 'text-slate-300';
@@ -580,17 +584,26 @@
                 `;
             } else {
                 // Conteúdo para outros status: E-mail e Data de Solicitação
+                // Ícones de e-mail e calendário mudam para cinza (text-slate-500)
                 detailContent = `
                     <p class="flex items-center">
-                        <i data-lucide="mail" class="w-3 h-3 mr-2 text-teal-400"></i>
+                        <i data-lucide="mail" class="w-3 h-3 mr-2 text-slate-500"></i>
                         E-mail: <span class="ml-1">${censorEmail(request.email)}</span>
                     </p>
                     <p class="flex items-center">
-                        <i data-lucide="calendar" class="w-3 h-3 mr-2 text-teal-400"></i>
+                        <i data-lucide="calendar" class="w-3 h-3 mr-2 text-slate-500"></i>
                         Solicitação: <span class="ml-1">${request.date}</span>
                     </p>
                 `;
             }
+            
+            // NOTA SOBRE EXCLUSÃO DE DADOS (apenas para status de ERRO)
+            const deletionNote = request.status === 'erro' ? 
+                `<p class="text-[10px] text-red-400/80 mt-2 text-center border-t border-red-900/50 pt-1">
+                    <i data-lucide="alert-triangle" class="w-3 h-3 inline-block mr-1"></i>
+                    Os dados deste pedido serão excluídos automaticamente em 30 dias.
+                </p>` : '';
+
 
             const html = `
                 <div class="bg-[var(--color-bg-card)] p-5 rounded-xl border ${statusColor} ${shadow} hover:scale-[1.01] transition duration-300">
@@ -626,6 +639,9 @@
                     </div>
 
                     ${renderProgressBarModern(request)}
+                    
+                    <!-- NOTA DE EXCLUSÃO DE DADOS -->
+                    ${deletionNote}
                 </div>
             `;
             document.getElementById('requests-container').innerHTML += html;
