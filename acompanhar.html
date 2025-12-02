@@ -16,6 +16,10 @@
             --color-light: #f8fafc;
             --color-success: #10b981; /* Emerald */
             --color-error: #ef4444; /* Red */
+            
+            /* Tamanho exato do círculo */
+            --progress-dot-size: 38px; 
+            --progress-line-height: 5px;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -31,7 +35,6 @@
         ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
         
-        /* Estilos de Sombra e Glow */
         .card-shadow {
             box-shadow: 0 0 30px rgba(79, 70, 229, 0.1), 0 0 5px rgba(0, 0, 0, 0.5);
             transition: all 0.3s ease;
@@ -43,65 +46,160 @@
             box-shadow: 0 0 30px rgba(239, 68, 68, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* PROGRESS BAR STYLES */
-        .progress-indicator {
-            width: 44px;
-            height: 44px;
+        /* ------------------------------------------- */
+        /* CSS ESTRUTURAL DA BARRA DE PROGRESSO       */
+        /* ------------------------------------------- */
+        
+        .progress-wrapper {
+            position: relative;
+            /* Espaço reservado para o texto que é absolute */
+            padding-bottom: 30px; 
+            margin-top: 20px;
+        }
+
+        .progress-steps-container {
+            display: flex;
+            justify-content: space-between; /* Garante distribuição igual */
+            align-items: flex-start;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        /* Linhas de Fundo e Preenchimento */
+        .progress-track {
+            position: absolute;
+            top: calc(var(--progress-dot-size) / 2 - var(--progress-line-height) / 2);
+            left: 0;
+            right: 0;
+            height: var(--progress-line-height);
+            background-color: #334155;
+            z-index: 1;
+            border-radius: 10px;
+        }
+        
+        .progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var(--color-success); /* Cor padrão de progresso (VERDE) */
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+        }
+
+        /* Item do Passo (Container do Dot) */
+        .progress-step {
+            position: relative;
+            /* A largura do container do passo é EXATAMENTE a largura do círculo. */
+            width: var(--progress-dot-size); 
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* O Círculo (Dot) */
+        .progress-dot {
+            width: var(--progress-dot-size);
+            height: var(--progress-dot-size);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            flex-shrink: 0;
-            transition: all 0.5s ease-in-out;
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--color-bg-card); 
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 10; /* Acima da linha */
         }
+
+        /* Texto (Label) - Posicionamento Absoluto para não afetar largura */
+        .step-label {
+            position: absolute;
+            top: 100%; /* Logo abaixo do dot */
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            color: #94a3b8;
+        }
+
+        /* ALINHAMENTOS ESPECÍFICOS (Mantidos) */
+        .progress-step:first-child { align-items: flex-start; }
+        .progress-step:first-child .step-label { left: 0; text-align: left; }
+
+        .progress-step:last-child { align-items: flex-end; }
+        .progress-step:last-child .step-label { right: 0; text-align: right; }
+
+        .progress-step:not(:first-child):not(:last-child) { align-items: center; }
+        .progress-step:not(:first-child):not(:last-child) .step-label {
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        /* ------------------------------------------- */
+        /* CORES DE ESTADO (Atualizadas para VERDE/VERMELHO) */
+        /* ------------------------------------------- */
         
-        /* Animação para o estado "Current" (Pulsação no anel) */
-        @keyframes pulse-dot {
-            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-        }
-        .dot-current {
-             animation: pulse-dot 1.8s infinite;
-        }
+        /* Etapa Concluída (Agora VERDE por padrão, como solicitado) */
+        .dot-passed { background-color: var(--color-success); color: white; }
+        .label-passed { color: var(--color-success); font-weight: 700; }
         
-        /* Estilo da linha de conexão - MAIS GROSSA (6px) */
-        .progress-line-thin {
-            height: 6px; /* AUMENTADO PARA 6PX */
-            background-color: #334155; /* slate-700 */
-            flex-grow: 1;
-            margin: 0 4px;
-            transition: background-color 0.5s;
+        /* Etapa Atual (Agora VERDE e pulsando em VERDE) */
+        .dot-current { 
+            background-color: var(--color-success); 
+            color: white; 
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.4); /* Sombra Verde */
+            animation: pulse-ring 2s infinite;
+        }
+        .label-current { color: var(--color-success); font-weight: 800; }
+
+        /* Etapa Pendente (Mantida) */
+        .dot-pending { background-color: #334155; color: #94a3b8; }
+        .label-pending { color: #64748b; }
+
+        /* Estilos de ERRO (Vermelho) */
+        .dot-error { background-color: var(--color-error); color: white; }
+        .label-error { color: var(--color-error); font-weight: 700; }
+        
+        @keyframes pulse-ring {
+            /* Animação de pulso agora em VERDE */
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Ajustes Mobile */
+        @media (max-width: 640px) {
+            .step-label { font-size: 10px; }
+            :root { --progress-dot-size: 32px; }
         }
     </style>
 </head>
 <body onload="initTracker()">
 
-    <!-- Header / Sticky Navigation --><header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo --><a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
                     <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
                     <div class="flex flex-col leading-none">
                         <span class="text-teal-400 text-base">HACKEA</span>
                         <span class="text-white text-base -mt-1">BRASIL</span>
                     </div>
                 </a>
-
-                <!-- Desktop Navigation Links --><nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
                     <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
                     <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
                     <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
                     <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
-                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Notícias de Hack</a>
-                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Apps Modificados</a>
-                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING Mais em Conta</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
                 </nav>
-
-                <!-- Action Button --><button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ml-4">
+                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
                     <i data-lucide="home" class="w-3 h-3 mr-1"></i>
-                    Voltar ao Início
+                    Início
                 </button>
             </div>
         </div>
@@ -114,312 +212,286 @@
                 Acompanhamento de Pedidos
             </h1>
 
-            <!-- Seção de Filtros e Busca (Estilo Modernizado) --><div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
+            <!-- Filtros -->
+            <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
                 <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
                     <i data-lucide="filter" class="w-5 h-5 mr-2 text-teal-400"></i>
-                    Filtros de Busca Rápida
+                    Filtros de Busca
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <!-- Input de Nome --><input type="text" id="filter-name" placeholder="Buscar por Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition" oninput="applyFilters()">
-                    
-                    <!-- Select/Filtro de Status --><select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none cursor-pointer" onchange="applyFilters()">
+                    <input type="text" id="filter-name" placeholder="Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition" oninput="applyFilters()">
+                    <select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition cursor-pointer" onchange="applyFilters()">
                         <option value="">Todos os Status</option>
                         <option value="aguardando">Aguardando</option>
                         <option value="analise">Análise</option>
                         <option value="recuperar">Recuperação</option>
-                        <option value="sucesso">Sucesso (Concluído)</option>
-                        <option value="erro">Erro (Falha)</option>
+                        <option value="sucesso">Sucesso</option>
+                        <option value="erro">Erro</option>
                     </select>
-
-                    <!-- Botão Limpar --><button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
+                    <button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
-                        Limpar Filtros
+                        Limpar
                     </button>
                 </div>
             </div>
 
-            <!-- Container de Resultados --><div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Cards de Pedidos serão injetados aqui --></div>
-
+            <!-- Container de Resultados -->
+            <div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            
             <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
                 <i data-lucide="frown" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
-                <p class="text-xl text-slate-400">Nenhum pedido encontrado com os filtros aplicados.</p>
+                <p class="text-xl text-slate-400">Nenhum pedido encontrado.</p>
             </div>
-
         </div>
     </main>
 
-    <!-- Footer (Copiado da página principal) --><footer>
+    <!-- Footer -->
+    <footer>
         <div class="bg-slate-900 border-t border-indigo-900 py-10">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
                     <i data-lucide="shield-half" class="w-5 h-5"></i>
                     <span>HACKEA BRASIL</span>
                 </div>
-                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados. Recuperando o que é seu.</p>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
 
     <script>
-        // Dados simulados de pedidos de recuperação
         const recoveryRequests = [
             { id: '001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null },
             { id: '002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null },
-            { id: '003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 3, error: 'Falha na validação de identidade documental.' },
+            // Pedido 003 e 007 agora simulam a falha final (status: erro)
+            { id: '003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 4, error: 'Falha na validação de identidade documental.' }, 
             { id: '004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null },
             { id: '005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null },
             { id: '006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null },
-            { id: '007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 2, error: 'O invasor reforçou a segurança 2FA.' },
+            { id: '007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 4, error: 'O invasor reforçou a segurança 2FA.' }, 
         ];
 
-        // Mapeamento de estágios para a barra de progresso
-        // Ícones unificados para 'help-circle'
         const progressStages = [
-            { label: "Aguardando", icon: "help-circle" },
-            { label: "Análise", icon: "help-circle" },
-            { label: "Recuperar", icon: "help-circle" },
-            { label: "Finalização", icon: "help-circle" }
+            { label: "Solicitado" }, 
+            { label: "Análise" }, 
+            { label: "Recuperando" }, 
+            { label: "Finalizado" } 
         ];
 
-        // Função para obter as iniciais
-        function getInitials(name) {
-            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-        }
-
-        // Função para censurar o email
+        function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2); }
+        
+        // CENSURA EMAIL: Mostra primeira, última e domínio
         function censorEmail(email) {
             if (!email || typeof email !== 'string') return '***@***';
-            const [localPart, domain] = email.split('@');
-            if (localPart.length > 3) {
-                return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`;
-            }
-            return `***@${domain}`;
+            const [local, domain] = email.split('@');
+            if (!domain) return '***@***';
+            // Deixa 1ª letra, 3 estrelas, última letra, e o domínio completo
+            return `${local[0]}***${local.slice(-1)}@${domain}`;
         }
         
-        // NOVO RENDERIZADOR DE BARRA DE PROGRESSO (Estilo Painel de Status)
-        function renderProgressBar(request) {
-            
-            let finalStatusLabel = request.status.charAt(0).toUpperCase() + request.status.slice(1);
-            if (request.status === 'sucesso') {
-                finalStatusLabel = "SUCESSO";
-            } else if (request.status === 'erro') {
-                finalStatusLabel = "ERRO";
+        // CENSURA USERNAME: Censura as últimas 3 letras
+        function censorUsername(username, status) {
+            const statusToShow = ['sucesso', 'erro'];
+            // Se for status de sucesso ou erro, mostra o username completo
+            if (statusToShow.includes(status)) {
+                return username;
             }
-
+            
+            // Censura
+            if (!username || username.length <= 4) {
+                return username.slice(0, 1) + '***';
+            }
+            // Deixa tudo exceto as últimas 3 letras visíveis
+            const visiblePart = username.slice(0, -3);
+            return visiblePart + '***';
+        }
+        
+        function renderProgressBarModern(request) {
+            let finalStatusLabel = request.status === 'sucesso' ? "SUCESSO" : (request.status === 'erro' ? "ERRO" : request.status.toUpperCase());
             const textColor = request.status === 'sucesso' ? 'text-emerald-400' : (request.status === 'erro' ? 'text-red-400' : 'text-indigo-400');
-            const borderColor = request.status === 'sucesso' ? 'border-emerald-500' : (request.status === 'erro' ? 'border-red-500' : 'border-indigo-500');
+            
+            // LÓGICA DE PREENCHIMENTO: Se Sucesso ou Erro, preenche 100%. Senão, usa o stage atual.
+            const isFinished = request.status === 'sucesso' || request.status === 'erro';
+            const actualStage = isFinished ? progressStages.length : request.stage;
+            const fillPercentage = ((actualStage - 1) / (progressStages.length - 1)) * 100;
+            
+            // LINHA DE PROGRESSO: VERDE se não for ERRO, VERMELHO se for ERRO
+            const fillColor = request.status === 'erro' ? 'var(--color-error)' : 'var(--color-success)';
 
-
-            let progressHtml = `
-                <div class="space-y-4 pt-4">
-                    <div class="flex items-center justify-between text-xs font-medium">
-            `;
-
-            progressStages.forEach((stage, index) => {
+            let stepsHtml = progressStages.map((stage, index) => {
                 const stepNumber = index + 1;
-                const isCurrent = request.stage === stepNumber && request.status !== 'sucesso' && request.status !== 'erro';
-                const isPassed = request.stage >= stepNumber;
+                // Se o status final for erro/sucesso, todos os passos são considerados 'passados'
+                const isPassed = isFinished || request.stage >= stepNumber; 
+                const isCurrent = request.stage === stepNumber && !isFinished;
                 
-                let dotClasses = 'border border-slate-600 bg-transparent text-slate-500'; // Etapa Futura
-                let iconClasses = 'w-5 h-5';
-                let labelClasses = 'text-slate-500 font-medium';
-                let lineClasses = 'bg-slate-700';
+                let dotClass = 'dot-pending';
+                let labelClass = 'label-pending';
+                let icon = stepNumber;
 
-                // Etapas Concluídas/Passadas (Green/Indigo preenchido)
-                if (isPassed) {
-                    dotClasses = 'bg-indigo-600 text-white shadow-lg';
-                    labelClasses = 'text-white font-semibold';
-                    lineClasses = 'bg-indigo-600';
-                }
-
-                // Etapa Atual (Indigo pulsante com anel)
-                if (isCurrent) {
-                    dotClasses = 'bg-indigo-600 text-white dot-current shadow-xl';
-                    labelClasses = 'text-indigo-400 font-extrabold';
-                    iconClasses = 'w-6 h-6 animate-spin'; // Ícone de loader maior
-                }
-
-                // Status Final (Sucesso - Esmeralda)
-                if (request.status === 'sucesso' && isPassed) {
-                    dotClasses = 'bg-emerald-600 text-white shadow-xl';
-                    labelClasses = 'text-emerald-400 font-semibold';
-                    lineClasses = 'bg-emerald-600';
-                    iconClasses = 'w-5 h-5';
+                // 1. Lógica de ERRO (Prioritária e Completa)
+                if (request.status === 'erro') {
+                    dotClass = 'dot-error';
+                    labelClass = 'label-error';
+                    // O X só vai na última etapa ('Finalizado')
+                    if (stepNumber === progressStages.length) {
+                        icon = '<i data-lucide="x" class="w-4 h-4"></i>';
+                    }
                 } 
-                // Status Final (Erro - Vermelho)
-                else if (request.status === 'erro' && isPassed) {
-                    dotClasses = 'bg-red-600 text-white shadow-xl';
-                    labelClasses = 'text-red-400 font-semibold';
-                    lineClasses = 'bg-red-600';
-                    iconClasses = 'w-5 h-5';
-                    // Se o erro ocorreu nesta etapa, a linha de conexão deve parar de colorir
-                    if (request.stage === stepNumber) {
-                         lineClasses = 'bg-slate-700';
-                    } else if (stepNumber < request.stage) {
-                         lineClasses = 'bg-red-600';
+                // 2. Lógica de SUCESSO/PROGRESSO
+                else if (isPassed) {
+                    dotClass = 'dot-passed';
+                    labelClass = 'label-passed';
+                    
+                    // Se for a etapa final de sucesso, exibe um Check
+                    if (request.status === 'sucesso' && stepNumber === progressStages.length) {
+                        icon = '<i data-lucide="check" class="w-4 h-4"></i>';
                     }
                 }
-                
-                // Correção do ícone para Etapa Atual (usando help-circle)
-                if (isCurrent) {
-                    iconName = 'help-circle';
-                    iconClasses = 'w-6 h-6'; // Mantendo o tamanho maior para a etapa atual
-                } else if (request.status === 'sucesso' && isPassed) {
-                    iconName = 'check-circle'; // Mantém o check para sucesso
-                    iconClasses = 'w-5 h-5';
-                } else if (request.status === 'erro' && isPassed) {
-                    iconName = 'x-octagon'; // Mantém o X para erro
-                    iconClasses = 'w-5 h-5';
-                } else {
-                    iconName = 'help-circle'; // Ícone padrão de interrogação
-                    iconClasses = 'w-5 h-5';
+
+                // 3. Lógica do Atual (Se não for ERRO)
+                if (isCurrent && request.status !== 'erro') {
+                    dotClass = 'dot-current'; // Verde Pulsante
+                    labelClass = 'label-current';
                 }
                 
-                // Aplicando a cor de preenchimento correta à linha de conexão
-                let appliedLineClasses = 'progress-line-thin ';
-                if (request.status === 'erro' && stepNumber < request.stage) {
-                    appliedLineClasses += 'bg-red-600';
-                } else if (request.status === 'sucesso' && isPassed) {
-                    appliedLineClasses += 'bg-emerald-600';
-                } else if (isPassed && request.status !== 'erro') {
-                    appliedLineClasses += 'bg-indigo-600';
-                } else {
-                    appliedLineClasses += 'bg-slate-700';
+                // Garante que etapas futuras (não passadas e não atuais) fiquem em pending
+                if (!isPassed && !isCurrent) {
+                    dotClass = 'dot-pending';
+                    labelClass = 'label-pending';
+                    icon = stepNumber;
                 }
 
 
-                progressHtml += `
-                    <div class="flex items-center flex-grow">
-                        <div class="flex flex-col items-center">
-                            <div class="progress-indicator ${dotClasses}">
-                                <i data-lucide="${iconName}" class="${iconClasses}"></i>
-                            </div>
-                            <span class="text-[10px] sm:text-xs ${labelClasses} mt-2 text-center whitespace-nowrap">${stage.label}</span>
-                        </div>
-                        ${index < progressStages.length - 1 ? 
-                            `<div class="${appliedLineClasses}"></div>` 
-                            : ''
-                        }
+                return `
+                    <div class="progress-step">
+                        <div class="progress-dot ${dotClass}">${icon}</div>
+                        <span class="step-label ${labelClass}">${stage.label}</span>
                     </div>
                 `;
-            });
+            }).join('');
 
-            progressHtml += `
+            return `
+                <div class="progress-wrapper">
+                    <!-- Faixa (Track) e Preenchimento (Fill) -->
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: ${fillPercentage}%; background-color: ${fillColor}"></div>
+                    </div>
+                    
+                    <!-- Passos (Dots e Texto) -->
+                    <div class="progress-steps-container">
+                        ${stepsHtml}
                     </div>
 
-                    <!-- Status Finalizado/Erro/Ação --><div class="pt-4 border-t border-slate-700 mt-4 text-center">
-                        <p class="text-xl font-bold ${textColor}">Status: ${finalStatusLabel}</p>
+                    <!-- Botão ou Status Final -->
+                    <div class="mt-12 text-center border-t border-slate-700/50 pt-4">
+                        <p class="text-xl font-bold ${textColor} mb-3">Status: ${finalStatusLabel}</p>
                         ${request.status === 'sucesso' ? 
-                            `<button onclick="console.log('Resgatar Conta ${request.id}')" class="mt-4 w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-xl flex items-center justify-center">
-                                <i data-lucide="key" class="w-5 h-5 mr-2"></i>
-                                Resgatar Conta
+                            `<button class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-sm">
+                                <i data-lucide="key" class="w-4 h-4 mr-2"></i> Resgatar Conta
                             </button>` 
                         : request.status === 'erro' ? 
-                            `<div class="mt-4 p-3 bg-red-700/30 border border-red-500 rounded-lg text-red-300 font-medium">
-                                ERRO: Recuperação não foi possível. Detalhes: ${request.error || 'Motivo desconhecido.'}
+                            `<div class="p-2.5 bg-red-900/20 border border-red-500/30 rounded-lg text-red-300 text-xs font-medium">
+                                ${request.error || 'Erro desconhecido.'}
                             </div>` 
                         : ''}
                     </div>
                 </div>
             `;
-
-            return progressHtml;
         }
 
+        function renderRequestCard(request) {
+            let statusColor = 'border-slate-600';
+            let badgeColor = 'bg-slate-600';
+            let shadow = 'card-shadow';
 
-        // Função principal de renderização
-        function renderRequests(requestsToRender) {
-            const container = document.getElementById('requests-container');
-            const noResults = document.getElementById('no-results');
-            container.innerHTML = '';
+            if (request.status === 'sucesso') { statusColor = 'border-emerald-500'; badgeColor = 'bg-emerald-600'; shadow = 'status-success-shadow'; }
+            else if (request.status === 'erro') { statusColor = 'border-red-500'; badgeColor = 'bg-red-600'; shadow = 'status-error-shadow'; }
+            else if (request.status === 'analise') { statusColor = 'border-indigo-500'; badgeColor = 'bg-indigo-600'; }
+            else if (request.status === 'recuperar') { statusColor = 'border-orange-500'; badgeColor = 'bg-orange-500'; }
 
-            if (requestsToRender.length === 0) {
-                noResults.classList.remove('hidden');
-                return;
-            } else {
-                noResults.classList.add('hidden');
-            }
+            // Lógica de censura e link do username
+            const displayUsername = censorUsername(request.username, request.status);
+            const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
+            
+            // COR: Username e ícone do Instagram em branco. Link clicável em cinza claro para hover.
+            const usernameLinkClass = usernameIsLink ? 
+                `text-white hover:text-slate-300 font-semibold transition truncate` : 
+                `text-white truncate`;
+            
+            const usernameElement = usernameIsLink ? 
+                `<a href="https://instagram.com/${request.username.replace('@', '')}" target="_blank" class="${usernameLinkClass}">${displayUsername}</a>` :
+                `<span class="${usernameLinkClass}">${displayUsername}</span>`;
 
-            requestsToRender.forEach(request => {
-                let statusColor = '';
-                let extraShadowClass = 'card-shadow';
-                switch (request.status) {
-                    case 'sucesso': statusColor = 'border-emerald-500'; extraShadowClass = 'status-success-shadow'; break;
-                    case 'erro': statusColor = 'border-red-500'; extraShadowClass = 'status-error-shadow'; break;
-                    case 'analise': statusColor = 'border-indigo-500'; break;
-                    case 'recuperar': statusColor = 'border-orange-500'; break;
-                    case 'aguardando': statusColor = 'border-slate-600'; break;
-                    default: statusColor = 'border-slate-600';
-                }
+            // COR: E-mail e data de solicitação em cinza claro (text-slate-300)
+            const detailTextColor = 'text-slate-300';
 
-                // Define a cor de fundo do status badge
-                let statusBadgeBg = 'bg-slate-600';
-                if (request.status === 'sucesso') statusBadgeBg = 'bg-emerald-600';
-                else if (request.status === 'erro') statusBadgeBg = 'bg-red-600';
-                else if (request.status === 'analise') statusBadgeBg = 'bg-indigo-600';
-                else if (request.status === 'recuperar') statusBadgeBg = 'bg-orange-500';
-
-
-                const cardHtml = `
-                    <div class="bg-[var(--color-bg-card)] p-6 rounded-xl border ${statusColor} transform hover:scale-[1.01] transition duration-300 group ${extraShadowClass}">
-                        <!-- Cabeçalho do Card (ID e Status) --><div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-700/50">
-                            <h3 class="text-xl font-extrabold text-white flex items-center">
-                                <i data-lucide="hash" class="w-5 h-5 mr-1 text-slate-500"></i>
-                                Pedido ${request.id}
-                            </h3>
-                            <span class="px-3 py-1 text-xs font-bold rounded-full text-white ${statusBadgeBg} shadow-md uppercase">
-                                ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                            </span>
-                        </div>
-
-                        <!-- Detalhes do Usuário --><div class="flex items-center space-x-4 mb-4">
-                            <!-- Iniciais do Usuário --><div class="w-14 h-14 flex items-center justify-center bg-indigo-900/50 rounded-full text-xl font-bold text-indigo-400 flex-shrink-0 border-2 border-indigo-700/50">
-                                ${getInitials(request.name)}
-                            </div>
-                            <div>
-                                <p class="text-xl font-semibold text-white">${request.name}</p>
-                                <p class="text-sm text-slate-400 mt-1">@Instagram: ${request.username}</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2 text-sm text-slate-400 mb-6 pb-4 border-b border-slate-700/50">
-                            <p class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2 text-teal-400"></i> Email: ${censorEmail(request.email)}</p>
-                            <p class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-2 text-teal-400"></i> Data de Solicitação: ${request.date}</p>
-                        </div>
-
-                        <!-- Barra de Progresso e Ação -->${renderProgressBar(request)}
+            const html = `
+                <div class="bg-[var(--color-bg-card)] p-5 rounded-xl border ${statusColor} ${shadow} hover:scale-[1.01] transition duration-300">
+                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/50">
+                        <h3 class="text-lg font-bold text-white flex items-center">
+                            <i data-lucide="hash" class="w-4 h-4 mr-1 text-slate-500"></i> ${request.id}
+                        </h3>
+                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full text-white ${badgeColor} uppercase tracking-wider">
+                            ${request.status}
+                        </span>
                     </div>
-                `;
-                container.innerHTML += cardHtml;
-            });
-            lucide.createIcons(); // Recarrega ícones após injeção de HTML
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-900/50 rounded-full text-sm font-bold text-indigo-400 border border-indigo-700/50">
+                            ${getInitials(request.name)}
+                        </div>
+                        <div class="overflow-hidden">
+                            <p class="text-base font-semibold text-white truncate">${request.name}</p>
+                            <div class="text-xs mt-0.5 flex items-center space-x-1">
+                                <!-- Ícone do Instagram em branco -->
+                                <i data-lucide="instagram" class="w-3 h-3 text-white flex-shrink-0"></i>
+                                ${usernameElement}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- NOVOS DETALHES DE SOLICITAÇÃO (Cinza Claro) -->
+                    <div class="space-y-1 text-xs pb-3 ${detailTextColor}">
+                        <p class="flex items-center">
+                            <i data-lucide="mail" class="w-3 h-3 mr-2 text-teal-400"></i>
+                            E-mail: <span class="ml-1">${censorEmail(request.email)}</span>
+                        </p>
+                        <p class="flex items-center">
+                            <i data-lucide="calendar" class="w-3 h-3 mr-2 text-teal-400"></i>
+                            Solicitação: <span class="ml-1">${request.date}</span>
+                        </p>
+                    </div>
+
+                    ${renderProgressBarModern(request)}
+                </div>
+            `;
+            document.getElementById('requests-container').innerHTML += html;
         }
 
-        // Funções de Filtragem
+        function renderRequests(list) {
+            const container = document.getElementById('requests-container');
+            const noRes = document.getElementById('no-results');
+            container.innerHTML = '';
+            if (list.length === 0) { noRes.classList.remove('hidden'); return; }
+            noRes.classList.add('hidden');
+            list.forEach(renderRequestCard);
+            lucide.createIcons();
+        }
+
         function applyFilters() {
-            const nameFilter = document.getElementById('filter-name').value.toLowerCase();
-            const statusFilter = document.getElementById('filter-status').value.toLowerCase();
-
-            const filteredRequests = recoveryRequests.filter(request => {
-                const matchesName = request.name.toLowerCase().includes(nameFilter) || request.username.toLowerCase().includes(nameFilter);
-                const matchesStatus = statusFilter === "" || request.status === statusFilter;
-                return matchesName && matchesStatus;
-            });
-
-            renderRequests(filteredRequests);
+            const name = document.getElementById('filter-name').value.toLowerCase();
+            const status = document.getElementById('filter-status').value.toLowerCase();
+            const filtered = recoveryRequests.filter(r => 
+                (r.name.toLowerCase().includes(name) || r.username.toLowerCase().includes(name)) &&
+                (status === "" || r.status === status)
+            );
+            renderRequests(filtered);
         }
-
         function clearFilters() {
             document.getElementById('filter-name').value = '';
             document.getElementById('filter-status').value = '';
             applyFilters();
         }
-
         function initTracker() {
-            // Renderiza todos os pedidos ao carregar
             renderRequests(recoveryRequests);
-            lucide.createIcons();
         }
     </script>
 </body>
