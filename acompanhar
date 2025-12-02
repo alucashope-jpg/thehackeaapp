@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKEA BRASIL | Acompanhamento de Pedidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #4f46e5; /* Indigo */
+            --color-secondary: #14b8a6; /* Teal */
+            --color-dark: #070e17; /* Very Dark Blue */
+            --color-bg-card: #151f2e;
+            --color-light: #f8fafc;
+            --color-success: #10b981; /* Emerald */
+            --color-error: #ef4444; /* Red */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            background-image: radial-gradient(circle at 1px 1px, rgba(30, 41, 59, 0.4) 1px, transparent 0);
+            background-size: 20px 20px;
+            color: var(--color-light);
+            min-height: 100vh;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        
+        /* Estilos de Sombra e Glow */
+        .card-shadow {
+            box-shadow: 0 0 30px rgba(79, 70, 229, 0.1), 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .status-success-shadow {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+        .status-error-shadow {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* PROGRESS BAR STYLES */
+        .progress-indicator {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+            transition: all 0.5s ease-in-out;
+        }
+        
+        /* Animação para o estado "Current" (Pulsação no anel) */
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+        .dot-current {
+             animation: pulse-dot 1.8s infinite;
+        }
+        
+        /* Estilo da linha de conexão - MAIS GROSSA (6px) */
+        .progress-line-thin {
+            height: 6px; /* AUMENTADO PARA 6PX */
+            background-color: #334155; /* slate-700 */
+            flex-grow: 1;
+            margin: 0 4px;
+            transition: background-color 0.5s;
+        }
+    </style>
+</head>
+<body onload="initTracker()">
+
+    <!-- Header / Sticky Navigation --><header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo --><a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-teal-400 text-base">HACKEA</span>
+                        <span class="text-white text-base -mt-1">BRASIL</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links --><nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                    <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
+                    <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
+                    <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
+                    <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
+                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Notícias de Hack</a>
+                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Apps Modificados</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING Mais em Conta</a>
+                </nav>
+
+                <!-- Action Button --><button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ml-4">
+                    <i data-lucide="home" class="w-3 h-3 mr-1"></i>
+                    Voltar ao Início
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-10 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-extrabold text-white mb-8 text-center sm:text-left">
+                <i data-lucide="list-checks" class="w-7 h-7 inline-block mr-2 text-indigo-400"></i>
+                Acompanhamento de Pedidos
+            </h1>
+
+            <!-- Seção de Filtros e Busca (Estilo Modernizado) --><div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
+                <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+                    <i data-lucide="filter" class="w-5 h-5 mr-2 text-teal-400"></i>
+                    Filtros de Busca Rápida
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Input de Nome --><input type="text" id="filter-name" placeholder="Buscar por Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition" oninput="applyFilters()">
+                    
+                    <!-- Select/Filtro de Status --><select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none cursor-pointer" onchange="applyFilters()">
+                        <option value="">Todos os Status</option>
+                        <option value="aguardando">Aguardando</option>
+                        <option value="analise">Análise</option>
+                        <option value="recuperar">Recuperação</option>
+                        <option value="sucesso">Sucesso (Concluído)</option>
+                        <option value="erro">Erro (Falha)</option>
+                    </select>
+
+                    <!-- Botão Limpar --><button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
+                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container de Resultados --><div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards de Pedidos serão injetados aqui --></div>
+
+            <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
+                <i data-lucide="frown" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
+                <p class="text-xl text-slate-400">Nenhum pedido encontrado com os filtros aplicados.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer (Copiado da página principal) --><footer>
+        <div class="bg-slate-900 border-t border-indigo-900 py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
+                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                    <span>HACKEA BRASIL</span>
+                </div>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados. Recuperando o que é seu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dados simulados de pedidos de recuperação
+        const recoveryRequests = [
+            { id: '001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null },
+            { id: '002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null },
+            { id: '003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 3, error: 'Falha na validação de identidade documental.' },
+            { id: '004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null },
+            { id: '005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null },
+            { id: '006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null },
+            { id: '007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 2, error: 'O invasor reforçou a segurança 2FA.' },
+        ];
+
+        // Mapeamento de estágios para a barra de progresso
+        // Ícones unificados para 'help-circle'
+        const progressStages = [
+            { label: "Aguardando", icon: "help-circle" },
+            { label: "Análise", icon: "help-circle" },
+            { label: "Recuperar", icon: "help-circle" },
+            { label: "Finalização", icon: "help-circle" }
+        ];
+
+        // Função para obter as iniciais
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        // Função para censurar o email
+        function censorEmail(email) {
+            if (!email || typeof email !== 'string') return '***@***';
+            const [localPart, domain] = email.split('@');
+            if (localPart.length > 3) {
+                return `${localPart[0]}***${localPart[localPart.length - 1]}@${domain}`;
+            }
+            return `***@${domain}`;
+        }
+        
+        // NOVO RENDERIZADOR DE BARRA DE PROGRESSO (Estilo Painel de Status)
+        function renderProgressBar(request) {
+            
+            let finalStatusLabel = request.status.charAt(0).toUpperCase() + request.status.slice(1);
+            if (request.status === 'sucesso') {
+                finalStatusLabel = "SUCESSO";
+            } else if (request.status === 'erro') {
+                finalStatusLabel = "ERRO";
+            }
+
+            const textColor = request.status === 'sucesso' ? 'text-emerald-400' : (request.status === 'erro' ? 'text-red-400' : 'text-indigo-400');
+            const borderColor = request.status === 'sucesso' ? 'border-emerald-500' : (request.status === 'erro' ? 'border-red-500' : 'border-indigo-500');
+
+
+            let progressHtml = `
+                <div class="space-y-4 pt-4">
+                    <div class="flex items-center justify-between text-xs font-medium">
+            `;
+
+            progressStages.forEach((stage, index) => {
+                const stepNumber = index + 1;
+                const isCurrent = request.stage === stepNumber && request.status !== 'sucesso' && request.status !== 'erro';
+                const isPassed = request.stage >= stepNumber;
+                
+                let dotClasses = 'border border-slate-600 bg-transparent text-slate-500'; // Etapa Futura
+                let iconClasses = 'w-5 h-5';
+                let labelClasses = 'text-slate-500 font-medium';
+                let lineClasses = 'bg-slate-700';
+
+                // Etapas Concluídas/Passadas (Green/Indigo preenchido)
+                if (isPassed) {
+                    dotClasses = 'bg-indigo-600 text-white shadow-lg';
+                    labelClasses = 'text-white font-semibold';
+                    lineClasses = 'bg-indigo-600';
+                }
+
+                // Etapa Atual (Indigo pulsante com anel)
+                if (isCurrent) {
+                    dotClasses = 'bg-indigo-600 text-white dot-current shadow-xl';
+                    labelClasses = 'text-indigo-400 font-extrabold';
+                    iconClasses = 'w-6 h-6 animate-spin'; // Ícone de loader maior
+                }
+
+                // Status Final (Sucesso - Esmeralda)
+                if (request.status === 'sucesso' && isPassed) {
+                    dotClasses = 'bg-emerald-600 text-white shadow-xl';
+                    labelClasses = 'text-emerald-400 font-semibold';
+                    lineClasses = 'bg-emerald-600';
+                    iconClasses = 'w-5 h-5';
+                } 
+                // Status Final (Erro - Vermelho)
+                else if (request.status === 'erro' && isPassed) {
+                    dotClasses = 'bg-red-600 text-white shadow-xl';
+                    labelClasses = 'text-red-400 font-semibold';
+                    lineClasses = 'bg-red-600';
+                    iconClasses = 'w-5 h-5';
+                    // Se o erro ocorreu nesta etapa, a linha de conexão deve parar de colorir
+                    if (request.stage === stepNumber) {
+                         lineClasses = 'bg-slate-700';
+                    } else if (stepNumber < request.stage) {
+                         lineClasses = 'bg-red-600';
+                    }
+                }
+                
+                // Correção do ícone para Etapa Atual (usando help-circle)
+                if (isCurrent) {
+                    iconName = 'help-circle';
+                    iconClasses = 'w-6 h-6'; // Mantendo o tamanho maior para a etapa atual
+                } else if (request.status === 'sucesso' && isPassed) {
+                    iconName = 'check-circle'; // Mantém o check para sucesso
+                    iconClasses = 'w-5 h-5';
+                } else if (request.status === 'erro' && isPassed) {
+                    iconName = 'x-octagon'; // Mantém o X para erro
+                    iconClasses = 'w-5 h-5';
+                } else {
+                    iconName = 'help-circle'; // Ícone padrão de interrogação
+                    iconClasses = 'w-5 h-5';
+                }
+                
+                // Aplicando a cor de preenchimento correta à linha de conexão
+                let appliedLineClasses = 'progress-line-thin ';
+                if (request.status === 'erro' && stepNumber < request.stage) {
+                    appliedLineClasses += 'bg-red-600';
+                } else if (request.status === 'sucesso' && isPassed) {
+                    appliedLineClasses += 'bg-emerald-600';
+                } else if (isPassed && request.status !== 'erro') {
+                    appliedLineClasses += 'bg-indigo-600';
+                } else {
+                    appliedLineClasses += 'bg-slate-700';
+                }
+
+
+                progressHtml += `
+                    <div class="flex items-center flex-grow">
+                        <div class="flex flex-col items-center">
+                            <div class="progress-indicator ${dotClasses}">
+                                <i data-lucide="${iconName}" class="${iconClasses}"></i>
+                            </div>
+                            <span class="text-[10px] sm:text-xs ${labelClasses} mt-2 text-center whitespace-nowrap">${stage.label}</span>
+                        </div>
+                        ${index < progressStages.length - 1 ? 
+                            `<div class="${appliedLineClasses}"></div>` 
+                            : ''
+                        }
+                    </div>
+                `;
+            });
+
+            progressHtml += `
+                    </div>
+
+                    <!-- Status Finalizado/Erro/Ação --><div class="pt-4 border-t border-slate-700 mt-4 text-center">
+                        <p class="text-xl font-bold ${textColor}">Status: ${finalStatusLabel}</p>
+                        ${request.status === 'sucesso' ? 
+                            `<button onclick="console.log('Resgatar Conta ${request.id}')" class="mt-4 w-full py-3 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-xl flex items-center justify-center">
+                                <i data-lucide="key" class="w-5 h-5 mr-2"></i>
+                                Resgatar Conta
+                            </button>` 
+                        : request.status === 'erro' ? 
+                            `<div class="mt-4 p-3 bg-red-700/30 border border-red-500 rounded-lg text-red-300 font-medium">
+                                ERRO: Recuperação não foi possível. Detalhes: ${request.error || 'Motivo desconhecido.'}
+                            </div>` 
+                        : ''}
+                    </div>
+                </div>
+            `;
+
+            return progressHtml;
+        }
+
+
+        // Função principal de renderização
+        function renderRequests(requestsToRender) {
+            const container = document.getElementById('requests-container');
+            const noResults = document.getElementById('no-results');
+            container.innerHTML = '';
+
+            if (requestsToRender.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+            }
+
+            requestsToRender.forEach(request => {
+                let statusColor = '';
+                let extraShadowClass = 'card-shadow';
+                switch (request.status) {
+                    case 'sucesso': statusColor = 'border-emerald-500'; extraShadowClass = 'status-success-shadow'; break;
+                    case 'erro': statusColor = 'border-red-500'; extraShadowClass = 'status-error-shadow'; break;
+                    case 'analise': statusColor = 'border-indigo-500'; break;
+                    case 'recuperar': statusColor = 'border-orange-500'; break;
+                    case 'aguardando': statusColor = 'border-slate-600'; break;
+                    default: statusColor = 'border-slate-600';
+                }
+
+                // Define a cor de fundo do status badge
+                let statusBadgeBg = 'bg-slate-600';
+                if (request.status === 'sucesso') statusBadgeBg = 'bg-emerald-600';
+                else if (request.status === 'erro') statusBadgeBg = 'bg-red-600';
+                else if (request.status === 'analise') statusBadgeBg = 'bg-indigo-600';
+                else if (request.status === 'recuperar') statusBadgeBg = 'bg-orange-500';
+
+
+                const cardHtml = `
+                    <div class="bg-[var(--color-bg-card)] p-6 rounded-xl border ${statusColor} transform hover:scale-[1.01] transition duration-300 group ${extraShadowClass}">
+                        <!-- Cabeçalho do Card (ID e Status) --><div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-700/50">
+                            <h3 class="text-xl font-extrabold text-white flex items-center">
+                                <i data-lucide="hash" class="w-5 h-5 mr-1 text-slate-500"></i>
+                                Pedido ${request.id}
+                            </h3>
+                            <span class="px-3 py-1 text-xs font-bold rounded-full text-white ${statusBadgeBg} shadow-md uppercase">
+                                ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </span>
+                        </div>
+
+                        <!-- Detalhes do Usuário --><div class="flex items-center space-x-4 mb-4">
+                            <!-- Iniciais do Usuário --><div class="w-14 h-14 flex items-center justify-center bg-indigo-900/50 rounded-full text-xl font-bold text-indigo-400 flex-shrink-0 border-2 border-indigo-700/50">
+                                ${getInitials(request.name)}
+                            </div>
+                            <div>
+                                <p class="text-xl font-semibold text-white">${request.name}</p>
+                                <p class="text-sm text-slate-400 mt-1">@Instagram: ${request.username}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-sm text-slate-400 mb-6 pb-4 border-b border-slate-700/50">
+                            <p class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2 text-teal-400"></i> Email: ${censorEmail(request.email)}</p>
+                            <p class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-2 text-teal-400"></i> Data de Solicitação: ${request.date}</p>
+                        </div>
+
+                        <!-- Barra de Progresso e Ação -->${renderProgressBar(request)}
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+            lucide.createIcons(); // Recarrega ícones após injeção de HTML
+        }
+
+        // Funções de Filtragem
+        function applyFilters() {
+            const nameFilter = document.getElementById('filter-name').value.toLowerCase();
+            const statusFilter = document.getElementById('filter-status').value.toLowerCase();
+
+            const filteredRequests = recoveryRequests.filter(request => {
+                const matchesName = request.name.toLowerCase().includes(nameFilter) || request.username.toLowerCase().includes(nameFilter);
+                const matchesStatus = statusFilter === "" || request.status === statusFilter;
+                return matchesName && matchesStatus;
+            });
+
+            renderRequests(filteredRequests);
+        }
+
+        function clearFilters() {
+            document.getElementById('filter-name').value = '';
+            document.getElementById('filter-status').value = '';
+            applyFilters();
+        }
+
+        function initTracker() {
+            // Renderiza todos os pedidos ao carregar
+            renderRequests(recoveryRequests);
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
