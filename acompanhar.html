@@ -298,11 +298,9 @@
     </footer>
 
     <!-- Modal de Pagamento -->
-    <!-- Removida a função closeModal do onclick para bloquear fechamento externo -->
     <div id="payment-modal" class="modal-overlay"> 
         <div class="modal-content p-6">
             <div class="flex justify-between items-center pb-4 border-b border-slate-700">
-                <!-- Título do modal alterado -->
                 <h3 class="text-2xl font-bold text-white flex items-center">
                     <i data-lucide="key-round" class="w-5 h-5 mr-2 text-emerald-400"></i>
                     Fazer Pagamento
@@ -328,15 +326,20 @@
     </div>
 
     <script>
+        // Adicionado campo 'platform'
         const recoveryRequests = [
-            // Adicionado campo 'cost' (custo da recuperação)
-            { id: '0001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null, cost: 99.90 },
-            { id: '0002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null, cost: 0.00 },
-            { id: '0003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 4, error: 'Falha na validação de identidade documental.', cost: 0.00 }, 
-            { id: '0004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null, cost: 0.00 },
-            { id: '0005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null, cost: 0.00 },
-            { id: '0006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null, cost: 79.90 },
-            { id: '0007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 4, error: 'O invasor reforçou a segurança 2FA.', cost: 0.00 }, 
+            { id: '0001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null, cost: 99.90, platform: 'instagram' },
+            { id: '0002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 4, error: 'Falha na validação de identidade documental.', cost: 0.00, platform: 'instagram' }, 
+            { id: '0004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null, cost: 0.00, platform: 'instagram' },
+            { id: '0006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null, cost: 79.90, platform: 'instagram' },
+            { id: '0007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 4, error: 'O invasor reforçou a segurança 2FA.', cost: 0.00, platform: 'instagram' }, 
+            
+            // Novos pedidos do Facebook
+            { id: '0008', name: 'Gabriela Costa', username: 'Gabriela Costa', email: 'gabicosta@gmail.com', date: '01/11/2025', status: 'sucesso', stage: 4, error: null, cost: 89.00, platform: 'facebook' },
+            { id: '0009', name: 'Ricardo Almeida', username: 'Ricardo Almeida', email: 'ricalmeida@hotmail.com', date: '05/11/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'facebook' },
+            { id: '0010', name: 'Patrícia Nunes', username: 'Patrícia Nunes', email: 'patynunes@yahoo.com', date: '10/11/2025', status: 'erro', stage: 4, error: 'Perfil com restrição de idade permanente.', cost: 0.00, platform: 'facebook' },
         ];
 
         const progressStages = [
@@ -372,7 +375,7 @@
             return `${local[0]}***${local.slice(-1)}@${domain}`;
         }
         
-        // CENSURA USERNAME: Censura as últimas 3 letras
+        // CENSURA USERNAME (Instagram): Censura as últimas 3 letras
         function censorUsername(username, status) {
             const statusToShow = ['sucesso', 'erro'];
             // Se for status de sucesso ou erro, mostra o username completo
@@ -493,6 +496,49 @@
                 </div>
             `;
         }
+        
+        // NOVA FUNÇÃO para renderizar detalhes da plataforma
+        function renderPlatformDetails(request) {
+            const isInstagram = request.platform === 'instagram';
+            
+            // Para Instagram, usamos censura. Para Facebook, usamos o nome completo.
+            const displayValue = isInstagram 
+                ? censorUsername(request.username, request.status) 
+                : request.username; 
+            
+            const iconName = isInstagram ? 'instagram' : 'facebook';
+            const linkBase = isInstagram 
+                ? `https://instagram.com/${request.username.replace('@', '')}` 
+                : `https://facebook.com/search/top?q=${encodeURIComponent(request.username)}`;
+            
+            // CORREÇÃO: O @ só é adicionado aqui, se for Instagram, para ser exibido no badge.
+            const linkText = isInstagram ? `@${displayValue.replace('@', '')}` : displayValue;
+            
+            const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
+            
+            // Classes para o texto do username (dentro do badge)
+            const textClass = usernameIsLink 
+                ? `text-white hover:text-slate-200 font-semibold transition truncate` 
+                : `text-white truncate`;
+            
+            // O BADGE (caixa) em si
+            const badgeClass = `inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700/70 shadow-inner`;
+
+            const content = `
+                <i data-lucide="${iconName}" class="w-3 h-3 text-white flex-shrink-0 mr-1"></i>
+                <span class="${textClass}">${linkText}</span>
+            `;
+
+            const element = usernameIsLink ? 
+                `<a href="${linkBase}" target="_blank" class="${badgeClass} hover:border-indigo-500">
+                    ${content}
+                </a>` :
+                `<span class="${badgeClass}">
+                    ${content}
+                </span>`;
+                
+            return element;
+        }
 
         function renderRequestCard(request) {
             let statusColor = 'border-slate-600';
@@ -502,38 +548,19 @@
             // Lógica para cor da borda: Roxa para Sucesso e Erro. Original para Progresso.
             if (request.status === 'sucesso' || request.status === 'erro') {
                 statusColor = 'border-indigo-500'; // Cor Roxa (Indigo)
-            } else if (request.status === 'analise') {
-                statusColor = 'border-indigo-500'; // Mantido Indigo para Análise
-            } else if (request.status === 'recuperar') {
-                statusColor = 'border-orange-500'; // Mantido Laranja para Recuperar
-            } else {
-                 statusColor = 'border-slate-600'; // Aguardando
+                shadow = request.status === 'sucesso' ? 'status-success-shadow' : 'status-error-shadow';
             }
             
-            // Lógica para cor do Badge e Sombra (MANTIDA para os status em andamento/finalizados)
+            // Lógica para cor do Badge: Cinza escuro para status de progresso
             if (request.status === 'sucesso') { 
                 badgeColor = 'bg-emerald-600'; 
-                shadow = 'status-success-shadow'; 
             } else if (request.status === 'erro') { 
                 badgeColor = 'bg-red-600'; 
-                shadow = 'status-error-shadow'; 
             } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
                 // NOVO: Borda e fundo cinza escuro/chumbo para status de progresso
                 statusColor = 'border-slate-700';
                 badgeColor = 'bg-slate-700'; 
             }
-
-
-            const displayUsername = censorUsername(request.username, request.status);
-            const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
-            
-            const usernameLinkClass = usernameIsLink ? 
-                `text-white hover:text-slate-300 font-semibold transition truncate` : 
-                `text-white truncate`;
-            
-            const usernameElement = usernameIsLink ? 
-                `<a href="https://instagram.com/${request.username.replace('@', '')}" target="_blank" class="${usernameLinkClass}">${displayUsername}</a>` :
-                `<span class="${usernameLinkClass}">${displayUsername}</span>`;
 
             const detailTextColor = 'text-slate-300';
             
@@ -569,10 +596,9 @@
                 <div class="bg-[var(--color-bg-card)] p-5 rounded-xl border ${statusColor} ${shadow} hover:scale-[1.01] transition duration-300">
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/50">
                         
-                        <!-- NOVO LAYOUT DO PEDIDO (Bold reduzido) -->
+                        <!-- LAYOUT DO PEDIDO -->
                         <div class="flex flex-col items-start leading-none">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PEDIDO</span>
-                            <!-- Alterado de text-lg para text-base -->
                             <h3 class="text-base font-semibold text-white mt-0.5">#${request.id}</h3> 
                         </div>
 
@@ -587,10 +613,9 @@
                         </div>
                         <div class="overflow-hidden">
                             <p class="text-base font-semibold text-white truncate">${request.name}</p>
-                            <div class="text-xs mt-0.5 flex items-center space-x-1">
-                                <!-- Ícone do Instagram em branco -->
-                                <i data-lucide="instagram" class="w-3 h-3 text-white flex-shrink-0"></i>
-                                ${usernameElement}
+                            <!-- BOX AO REDOR DO NOME DE USUÁRIO / PERFIL -->
+                            <div class="text-xs mt-1">
+                                ${renderPlatformDetails(request)}
                             </div>
                         </div>
                     </div>
