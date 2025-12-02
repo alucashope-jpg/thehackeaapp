@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKEA BRASIL | Catálogo de Aplicativos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Manutenção dos estilos do tema anterior */
+        :root {
+            --color-primary: #4f46e5; /* Indigo */
+            --color-secondary: #14b8a6; /* Teal */
+            --color-dark: #070e17; /* Very Dark Blue */
+            --color-bg-card: #151f2e;
+            --color-light: #f8fafc;
+            --color-success: #10b981; /* Emerald */
+            --color-error: #ef4444; /* Red */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            background-image: radial-gradient(circle at 1px 1px, rgba(30, 41, 59, 0.4) 1px, transparent 0);
+            background-size: 20px 20px;
+            color: var(--color-light);
+            min-height: 100vh;
+        }
+        /* Nova classe para bloquear a rolagem */
+        body.no-scroll {
+            overflow: hidden;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        
+        .card-shadow {
+            box-shadow: 0 0 30px rgba(79, 70, 229, 0.1), 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        /* Estilo para o botão de download */
+        .download-btn {
+            background-color: var(--color-primary);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        .download-btn:hover {
+            background-color: #6366f1;
+            transform: translateY(-1px);
+        }
+        .app-card:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Estilo para o container da logo/imagem */
+        .app-logo-container {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Cor de fundo padrão, caso a imagem falhe */
+            background-color: #334155; 
+        }
+
+        /* Estilo para o botão de filtro ativo */
+        .platform-filter-btn {
+            transition: all 0.2s;
+        }
+        /* Cor de fundo do botão All/Todos */
+        #filter-all {
+             background-color: var(--color-primary);
+        }
+        /* Cor de fundo do botão Mobile/Celular */
+        #filter-mobile {
+            background-color: var(--color-secondary);
+        }
+    </style>
+</head>
+<body onload="initAppCatalog()">
+
+    <!-- Header (Mantido do arquivo original) -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-teal-400 text-base">HACKEA</span>
+                        <span class="text-white text-base -mt-1">BRASIL</span>
+                    </div>
+                </a>
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                    <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
+                    <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
+                    <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
+                    <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
+                </nav>
+                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
+                    <i data-lucide="home" class="w-3 h-3 mr-1"></i>
+                    Início
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-10 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- TÍTULO ATUALIZADO: Centralizado e sem ícone -->
+            <h1 class="text-3xl font-extrabold text-white mb-8 text-center">
+                Aplicativos Premium Grátis
+            </h1>
+
+            <!-- Barra de Pesquisa / Filtro -->
+            <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
+                <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
+                    <i data-lucide="search" class="w-5 h-5 mr-2 text-teal-400"></i>
+                    Filtros de Aplicativos
+                </h2>
+                
+                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                    <!-- Filtro de Nome -->
+                    <div class="relative w-full md:w-1/2 flex-grow">
+                        <i data-lucide="file-text" class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="app-filter" placeholder="Pesquisar por nome..." 
+                               class="w-full p-3 pl-10 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 focus:border-indigo-500 transition" 
+                               oninput="applyFilters()">
+                        <input type="hidden" id="current-platform-filter" value=""> <!-- Estado do filtro de plataforma -->
+                    </div>
+
+                    <!-- Botões de Filtro de Plataforma -->
+                    <!-- Alterado para que os botões usem 'flex-1' em mobile, compartilhando o espaço igualmente. -->
+                    <div class="flex w-full md:w-auto space-x-2">
+                        <button id="filter-all" onclick="setPlatformFilter('')" class="platform-filter-btn flex-1 md:w-auto p-3 rounded-lg hover:bg-indigo-600 text-white font-semibold transition flex items-center justify-center shadow-md flex-shrink-0">
+                            Todos
+                        </button>
+                        <button id="filter-mobile" onclick="setPlatformFilter('mobile')" class="platform-filter-btn flex-1 md:w-auto p-3 rounded-lg hover:bg-teal-500 text-white font-semibold transition flex items-center justify-center shadow-md flex-shrink-0">
+                            <i data-lucide="smartphone" class="w-4 h-4 mr-2"></i>
+                            Celular
+                        </button>
+                        <button id="filter-pc" onclick="setPlatformFilter('pc')" class="platform-filter-btn flex-1 md:w-auto p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md flex-shrink-0">
+                            <i data-lucide="monitor" class="w-4 h-4 mr-2"></i>
+                            PC
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container de Aplicativos (Grid de 2 colunas em telas maiores) -->
+            <div id="apps-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Cards de aplicativos serão injetados aqui -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
+                <i data-lucide="package-x" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
+                <p class="text-xl text-slate-400">Nenhum aplicativo encontrado.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Mantido do arquivo original) -->
+    <footer>
+        <div class="bg-slate-900 border-t border-indigo-900 py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
+                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                    <span>HACKEA BRASIL</span>
+                </div>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dados de 12 aplicativos com logos simuladas e tamanhos
+        const appCatalog = [
+            { 
+                id: '2', 
+                name: 'KineMaster Pro', 
+                icon: 'video', 
+                date: '05/12/2025', 
+                size: '~98 MB', 
+                // LOGO ATUALIZADA
+                logoUrl: 'https://play-lh.googleusercontent.com/Jaw57u6LQJNeqKfjJER9MM5On66ZXopBk3rrShag1BBZrX6cZdxxIMGf8nYA_Av0meA=s256-rw', 
+                downloadUrl: '#', 
+                platform: 'mobile',
+                // NOVO CAMPO: Recurso Desbloqueado
+                premiumFeature: 'Marca d\'Água Removida' 
+            },
+        ];
+
+        // Função para gerar o badge de plataforma
+        function platformBadge(platform) {
+            let text = '';
+            let colorClass = '';
+            let iconName = '';
+
+            if (platform === 'mobile') {
+                text = 'Celular';
+                colorClass = 'bg-teal-600 text-white';
+                iconName = 'smartphone';
+            } else if (platform === 'pc') {
+                text = 'PC';
+                colorClass = 'bg-indigo-600 text-white';
+                iconName = 'monitor';
+            } else if (platform === 'both') {
+                text = 'Multi';
+                colorClass = 'bg-yellow-500 text-black';
+                iconName = 'layers-3';
+            } else {
+                return '';
+            }
+
+            // Posição ajustada (top-2 e right-2) para evitar overflow no mobile.
+            return `
+                <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-bold rounded-full shadow-lg ${colorClass} flex items-center z-10">
+                    <i data-lucide="${iconName}" class="w-3 h-3 mr-1"></i>
+                    ${text}
+                </span>
+            `;
+        }
+        
+        // Função para renderizar um card de aplicativo
+        function renderAppCard(app) {
+            const html = `
+                <div class="app-card bg-[var(--color-bg-card)] p-5 rounded-xl border border-slate-700/50 shadow-xl card-shadow flex flex-col justify-between transform transition-all duration-300 relative">
+                    
+                    <!-- Indicador de Plataforma -->
+                    ${platformBadge(app.platform)}
+
+                    <div>
+                        <!-- Logo do Aplicativo (Imagem URL) -->
+                        <div class="app-logo-container mb-4">
+                            <img src="${app.logoUrl}" 
+                                 alt="Logo ${app.name}" 
+                                 class="w-full h-full object-cover"
+                                 onerror="this.onerror=null; this.parentElement.style.backgroundColor='var(--color-primary)'; this.parentElement.innerHTML='<i data-lucide=\'' + app.icon + '\' class=\'w-6 h-6 text-white\'></i>'; lucide.createIcons();"
+                            >
+                        </div>
+                        
+                        <!-- Nome e Detalhes -->
+                        <h3 class="text-xl font-bold text-white mb-2">${app.name}</h3>
+                        <div class="text-xs text-slate-400 space-y-1">
+
+                            <!-- NOVO DETALHE: Recurso Premium Desbloqueado -->
+                            ${app.premiumFeature ? `
+                                <p class="flex items-center text-emerald-400 font-semibold">
+                                    <i data-lucide="check-circle-2" class="w-3 h-3 mr-2 text-emerald-500"></i>
+                                    Recurso: <span class="ml-1">${app.premiumFeature}</span>
+                                </p>
+                            ` : ''}
+
+                            <p class="flex items-center">
+                                <!-- Ícone de Data em CINZA (text-slate-500) -->
+                                <i data-lucide="calendar" class="w-3 h-3 mr-2 text-slate-500"></i>
+                                Data de Atualização: <span class="ml-1 text-white">${app.date}</span>
+                            </p>
+                            <p class="flex items-center">
+                                <!-- Ícone de Tamanho em CINZA (text-slate-500) -->
+                                <i data-lucide="hard-drive" class="w-3 h-3 mr-2 text-slate-500"></i>
+                                Tamanho: <span class="ml-1 text-white">${app.size}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botão de Download -->
+                    <a href="${app.downloadUrl}" target="_blank" class="download-btn mt-6 py-2.5 rounded-lg text-white font-bold flex items-center justify-center text-sm shadow-lg">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        Download
+                    </a>
+                </div>
+            `;
+            return html;
+        }
+
+        // Função para gerenciar o estado dos botões de filtro de plataforma
+        function updatePlatformButtonState(activePlatform) {
+            const buttons = document.querySelectorAll('.platform-filter-btn');
+            // Remove o estilo ativo de todos os botões
+            buttons.forEach(btn => btn.classList.remove('ring-2', 'ring-offset-2', 'ring-offset-[var(--color-bg-card)]', 'ring-indigo-400', 'ring-teal-400', 'ring-slate-400'));
+
+            // Aplica o estilo ativo ao botão correto
+            if (activePlatform === '') {
+                document.getElementById('filter-all').classList.add('ring-2', 'ring-offset-2', 'ring-offset-[var(--color-bg-card)]', 'ring-indigo-400');
+            } else if (activePlatform === 'mobile') {
+                document.getElementById('filter-mobile').classList.add('ring-2', 'ring-offset-2', 'ring-offset-[var(--color-bg-card)]', 'ring-teal-400');
+            } else if (activePlatform === 'pc') {
+                document.getElementById('filter-pc').classList.add('ring-2', 'ring-offset-2', 'ring-offset-[var(--color-bg-card)]', 'ring-indigo-400');
+            }
+        }
+
+        // Nova função para definir e aplicar o filtro de plataforma
+        function setPlatformFilter(platform) {
+            document.getElementById('current-platform-filter').value = platform;
+            updatePlatformButtonState(platform);
+            applyFilters();
+        }
+
+        // Função principal para renderizar a lista de aplicativos
+        function renderApps(list) {
+            const container = document.getElementById('apps-container');
+            const noRes = document.getElementById('no-results');
+            container.innerHTML = '';
+            
+            if (list.length === 0) { 
+                noRes.classList.remove('hidden'); 
+            } else {
+                noRes.classList.add('hidden');
+                // Renderiza os cards
+                list.forEach(app => {
+                    container.innerHTML += renderAppCard(app);
+                });
+            }
+            // Recria ícones lucide 
+            lucide.createIcons();
+        }
+
+        // Função para aplicar todos os filtros (nome e plataforma)
+        function applyFilters() {
+            const name = document.getElementById('app-filter').value.toLowerCase();
+            const platformFilter = document.getElementById('current-platform-filter').value;
+            
+            const filtered = appCatalog.filter(app => 
+                // Filtro por nome
+                app.name.toLowerCase().includes(name) &&
+                
+                // Filtro por plataforma:
+                // Se o filtro estiver vazio (''), mostra todos.
+                // Se o app for 'both' (Multi), mostra para qualquer filtro.
+                // Caso contrário, exige a correspondência exata ('mobile' ou 'pc').
+                (platformFilter === '' || app.platform === platformFilter || app.platform === 'both')
+            );
+            
+            // Renderiza os resultados filtrados
+            renderApps(filtered);
+        }
+        
+        // Função para limpar o filtro de nome (mantém o filtro de plataforma)
+        function clearFilters() {
+            document.getElementById('app-filter').value = '';
+            applyFilters();
+        }
+
+        // Função de inicialização
+        function initAppCatalog() {
+            // Define o estado inicial do botão 'Todos' como ativo
+            updatePlatformButtonState(''); 
+            
+            // Renderiza o catálogo completo ao carregar a página
+            renderApps(appCatalog);
+        }
+    </script>
+</body>
+</html>
