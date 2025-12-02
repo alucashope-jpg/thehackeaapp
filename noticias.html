@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACKEA BRASIL | Notícias e Segurança</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Variáveis de Cores e Fontes (Mantidas) */
+        :root {
+            --color-primary: #4f46e5; /* Indigo */
+            --color-secondary: #14b8a6; /* Teal */
+            --color-dark: #070e17; /* Very Dark Blue */
+            --color-bg-card: #151f2e;
+            --color-light: #f8fafc;
+            --color-success: #10b981; /* Emerald */
+            --color-error: #ef4444; /* Red */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            background-image: radial-gradient(circle at 1px 1px, rgba(30, 41, 59, 0.4) 1px, transparent 0);
+            background-size: 20px 20px;
+            color: var(--color-light);
+            min-height: 100vh;
+        }
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+        
+        /* Estilos de Cards e Botões */
+        .news-card {
+            background-color: var(--color-bg-card);
+            border: 1px solid #29384e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-secondary);
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.1);
+        }
+        
+        /* NOVO: Estilo de destaque para o card EM ALTA */
+        .news-card.trending-highlight {
+            background-color: #211c10; /* Fundo mais escuro/amarelado */
+            border-color: #facc15; /* Borda amarela */
+            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3); /* Sombra amarela */
+        }
+
+        .filter-btn {
+            background-color: #334155; /* Cor base para botões de categoria */
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover {
+            background-color: #475569;
+        }
+        .filter-btn.active {
+            background-color: var(--color-secondary); /* Cor Teal para ativo */
+            font-weight: 700;
+        }
+
+        /* Estilo para o seletor de ordenação */
+        .sort-select {
+            background-color: #334155;
+            border-color: #475569;
+            color: var(--color-light);
+            transition: all 0.2s;
+            /* Estilo padrão mantido: fundo escuro, texto claro */
+        }
+
+        /* Removido o estilo .trending-active para padronizar */
+
+        /* PADRÃO: Estilo de botão para o "LER MAIS" */
+        .read-more-btn {
+            background: linear-gradient(to right, #4f46e5, #6366f1); /* Indigo gradient */
+            color: white;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            display: inline-flex; 
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px; 
+            font-size: 0.875rem; /* text-sm */
+        }
+        .read-more-btn:hover {
+            background: linear-gradient(to right, #6366f1, #818cf8);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        /* NOVO ESTILO: Estilo de botão para o "LER MAIS" EM ALTA */
+        .read-more-btn.read-more-btn-trending {
+            background: #facc15; /* Amarelo Sólido */
+            color: #070e17; /* Texto Preto */
+            box-shadow: 0 4px 10px rgba(250, 204, 21, 0.5);
+        }
+        .read-more-btn.read-more-btn-trending:hover {
+            background: #fde047; /* Amarelo mais claro no hover */
+            box-shadow: 0 6px 15px rgba(250, 204, 21, 0.8);
+            transform: translateY(-1px);
+        }
+
+        /* --- ESTILOS DO ACORDION (FILTRO EXPANSÍVEL) --- */
+        #category-filters-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        #category-filters-wrapper.open {
+            /* Valor alto para garantir que o conteúdo caiba, ajusta-se automaticamente com 'ease-out' */
+            max-height: 500px; 
+            opacity: 1;
+            margin-top: 1rem; /* Adiciona espaçamento após a abertura */
+        }
+        .rotate-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Animação para o título */
+        .animated-title {
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInSlideDown 0.8s ease-out forwards;
+        }
+        @keyframes fadeInSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- ESTILOS DO MODAL DE AVISO --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none; /* Escondido por padrão */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background-color: var(--color-bg-card);
+            border: 1px solid var(--color-secondary);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);
+            max-width: 90%;
+            width: 350px;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body onload="initNews()">
+
+    <!-- Header (Mantido) -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-teal-400 text-base">HACKEA</span>
+                        <span class="text-white text-base -mt-1">BRASIL</span>
+                    </div>
+                </a>
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                    <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
+                    <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
+                    <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
+                    <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
+                </nav>
+                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
+                    <i data-lucide="home" class="w-3 h-3 mr-1"></i>
+                    Início
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-10 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold text-white mb-8 text-center animated-title">
+                Notícias
+            </h1>
+            
+            <!-- Painel de Filtros Baseado em Categorias e Ordenação -->
+            <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
+                
+                <!-- TÍTULO DO FILTRO E TOGGLE -->
+                <div class="flex items-center justify-between mb-0 cursor-pointer" onclick="toggleCategoryFilter()">
+                    <h2 class="text-xl font-semibold text-white flex items-center">
+                        <i data-lucide="list-filter" class="w-5 h-5 mr-2 text-teal-400"></i>
+                        Filtrar por Categoria
+                    </h2>
+                    <i data-lucide="chevron-down" id="toggle-arrow" class="rotate-arrow w-5 h-5 text-slate-400 transition-transform"></i>
+                </div>
+                
+                <!-- DROPDOWN DE CONTEÚDO EXPANSÍVEL -->
+                <div id="category-filters-wrapper" class="">
+                    <div class="flex flex-col space-y-4 md:space-y-0 md:flex-row md:justify-between md:items-center">
+                        
+                        <!-- Filtros de Categoria (Botões) -->
+                        <div id="category-filters" class="flex flex-wrap gap-2 pt-2">
+                            <!-- Botões injetados via JS -->
+                        </div>
+
+                        <!-- Ordenação (Dropdown) -->
+                        <div class="relative w-full md:w-48 flex-shrink-0 mt-4 md:mt-0">
+                            <select id="sort-order" onchange="applyFilters()" class="sort-select appearance-none p-2 rounded-lg border focus:ring-indigo-500 focus:border-indigo-500 pr-8 cursor-pointer text-sm">
+                                <option value="recent">Mais Recentes</option>
+                                <option value="trending">Em Alta</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-3 h-3 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container de Notícias (Grid Responsivo) -->
+            <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards de notícias serão injetados aqui -->
+            </div>
+            
+            <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
+                <i data-lucide="newspaper" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
+                <p class="text-xl text-slate-400">Nenhuma notícia encontrada com os filtros atuais.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Mantido) -->
+    <footer>
+        <div class="bg-slate-900 border-t border-indigo-900 py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
+                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                    <span>HACKEA BRASIL</span>
+                </div>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE AVISO (NOVO) -->
+    <div id="info-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content p-6 text-center">
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="-mt-4 mb-4">
+                <i data-lucide="zap" class="w-12 h-12 mx-auto text-teal-400 mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2">Em Breve!</h3>
+                <p class="text-slate-300">Esta funcionalidade está em desenvolvimento e será lançada na próxima atualização.</p>
+            </div>
+            <button onclick="closeModal()" class="w-full py-3 bg-teal-600 hover:bg-teal-700 rounded-lg text-white font-bold transition shadow-lg text-base">
+                Entendido
+            </button>
+        </div>
+    </div>
+    <!-- FIM DO MODAL DE AVISO -->
+
+    <script>
+        // Dados das notícias 
+        const newsArticles = [
+            // --- NOVO TOP TRENDING: APENAS ESTA NOTÍCIA É TRUE ---
+            { id: 'N6', title: 'COMO CRIAR UM SITE COMPLETO COM IA', category: 'DIY', date: '2025-12-05', summary: 'Crie um site completo e funcional apenas escrevendo o que você precisa. Descubra a ferramenta que transforma texto em código.', trending: true },
+            
+            // --- OUTRAS NOTÍCIAS (TRENDING: false) ---
+            { id: 'N9', title: 'Falha Crítica Zero-Day em IoT Ameaça Milhões de Dispositivos', category: 'Segurança', date: '2025-12-06', summary: 'Nova vulnerabilidade global em dispositivos IoT permite acesso remoto não autenticado. Medidas de mitigação urgentes.', trending: false },
+            { id: 'N7', title: 'Cuidado! Confiar Apenas no 2FA por SMS é Perigoso', category: 'Segurança', date: '2025-12-05', summary: 'Especialistas alertam que usar apenas o número de telefone para verificação de dois fatores pode expor suas contas a ataques de troca de SIM.', trending: false },
+            { id: 'N10', title: 'Análise de Código Malicioso: A Nova Onda de Ransomware', category: 'Hacking', date: '2025-12-04', summary: 'Detalhes técnicos sobre a nova variante de ransomware que se propaga por redes corporativas e como se defender.', trending: false },
+            { id: 'N8', title: 'COMO TIRAR TODOS OS ANUNCIOS DO CELULAR', category: 'DIY', date: '2025-12-04', summary: 'É possível eliminar anúncios invasivos de todos os seus aplicativos de forma fácil e permanente, sem a necessidade de root ou software complexo.', trending: false },
+            { id: 'N0', title: 'Tutorial: Criptografando Tráfego de Rede com VPNs DIY', category: 'DIY', date: '2025-12-03', summary: 'Um guia essencial para proteger sua privacidade online configurando seu próprio servidor VPN.', trending: false },
+            { id: 'N1', title: 'Como Criar um Honeypot para Phishing', category: 'Hacking', date: '2025-12-02', summary: 'Guia passo a passo para configurar uma armadilha e rastrear cibercriminosos iniciantes.', trending: false },
+            { id: 'N2', title: 'Novas Regras de Segurança para E-commerce', category: 'Segurança', date: '2025-12-01', summary: 'As 5 melhores práticas de segurança de dados que toda loja virtual deve adotar em 2025.', trending: false },
+            { id: 'N3', title: 'Ferramenta de Pentest: Mapeamento de Redes Ativas', category: 'Hacking', date: '2025-11-28', summary: 'Análise do Nmap e dicas avançadas para varredura de portas em sistemas modernos.', trending: false },
+            { id: 'N4', title: 'Reforma do PC com Peças de Reuso', category: 'DIY', date: '2025-11-25', summary: 'Tutorial completo de como montar um PC gamer econômico usando hardware antigo e modificado.', trending: false },
+            { id: 'N5', title: 'Guia de Proteção de Contas Streaming', category: 'Segurança', date: '2025-11-20', summary: 'Dicas essenciais para proteger seu Max, Netflix e Disney contra acessos não autorizados.', trending: false },
+        ];
+        
+        // CATEGORIAS ATUALIZADAS: 'Em Alta' removida como botão de filtro
+        const categories = ['Todas', 'Segurança', 'Hacking', 'DIY'];
+        let currentCategoryFilter = 'Todas'; // Estado inicial
+
+        // Função para formatar a data (AAAA-MM-DD para DD/MM/AAAA)
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Função para abrir o modal de aviso
+        function openModal() {
+            document.getElementById('info-modal').classList.add('open');
+            lucide.createIcons(); // Garante que o ícone do modal seja renderizado
+        }
+
+        // Função para fechar o modal de aviso
+        function closeModal(event) {
+            // Se o clique foi no overlay, fechar o modal
+            if (event && event.target.id === 'info-modal') {
+                document.getElementById('info-modal').classList.remove('open');
+                return;
+            }
+            document.getElementById('info-modal').classList.remove('open');
+        }
+
+        // Renderiza um card de notícia
+        function renderNewsCard(article) {
+            // Define o ícone e a cor com base na categoria
+            let iconName = 'book-open';
+            let iconColor = 'text-indigo-400';
+
+            // Lógica de Ícones e Cores
+            if (article.category === 'Hacking') {
+                iconName = 'code';
+                iconColor = 'text-red-400'; // VERMELHO
+            } else if (article.category === 'Segurança') {
+                iconName = 'shield-half';
+                iconColor = 'text-green-400'; // VERDE
+            } else if (article.category === 'DIY') {
+                iconName = 'wrench';
+                iconColor = 'text-cyan-400'; // CIANO
+            } 
+            
+            // Adiciona um BADGE especial se estiver Em Alta
+            let trendingBadge = '';
+            // Aplica a classe de destaque no card se for trending
+            let cardClass = 'news-card'; 
+            let buttonClass = 'read-more-btn'; // Classe de botão padrão
+
+            if (article.trending) {
+                 // ALTERADO: text-black e bg-yellow-400 para amarelo sólido e texto preto
+                 trendingBadge = `
+                    <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full text-black bg-yellow-400 border border-yellow-600 mr-2">
+                        EM ALTA
+                    </span>
+                 `;
+                 cardClass += ' trending-highlight'; // Adiciona a classe de destaque
+                 buttonClass += ' read-more-btn-trending'; // Adiciona a classe de botão Em Alta
+            }
+
+            const html = `
+                <div class="${cardClass} p-5 rounded-xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                ${trendingBadge}
+                                <span class="text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${iconColor} bg-slate-800 border border-slate-700">
+                                    ${article.category}
+                                </span>
+                            </div>
+                            <span class="text-xs text-slate-500 flex items-center">
+                                <i data-lucide="clock" class="w-3 h-3 mr-1 text-slate-600"></i>
+                                ${formatDate(article.date)}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-2 leading-snug">${article.title}</h3>
+                        <p class="text-sm text-slate-400">${article.summary}</p>
+                    </div>
+                    
+                    <!-- BOTÃO LER MAIS CHAMA O MODAL -->
+                    <a href="#" class="${buttonClass}" onclick="openModal(); return false;">
+                        Ler Mais
+                    </a>
+                </div>
+            `;
+            return html;
+        }
+
+        // Função para aplicar os filtros e renderizar
+        function applyFilters() {
+            const sortSelect = document.getElementById('sort-order');
+            const sortOrder = sortSelect.value;
+            
+            // 1. ATUALIZAÇÃO: REMOVIDO O DESTAQUE DO DROPDOWN.
+            // O estilo do botão de ordenação deve permanecer o padrão (cor de "Mais Recentes").
+            sortSelect.classList.remove('trending-active');
+            
+            // 2. Filtrar por Categoria
+            let filtered = newsArticles.filter(article => 
+                currentCategoryFilter === 'Todas' || article.category === currentCategoryFilter
+            );
+
+            // 3. Ordenar
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                
+                if (sortOrder === 'recent') {
+                    // Mais recente primeiro (padrão)
+                    return dateB - dateA; 
+                } else if (sortOrder === 'trending') {
+                    // Prioriza artigos marcados como 'trending: true', depois ordena por data
+                    const isATrending = a.trending; 
+                    const isBTrending = b.trending;
+
+                    if (isATrending && !isBTrending) {
+                        return -1; // A (Em Alta) vem primeiro
+                    }
+                    if (!isATrending && isBTrending) {
+                        return 1; // B (Em Alta) vem primeiro
+                    }
+                    // Se ambos são ou não são 'Em Alta', ordena por data (mais recente)
+                    return dateB - dateA; 
+                }
+                
+                return dateB - dateA; // Fallback: Mais recente
+            });
+
+            // 4. Renderizar
+            const container = document.getElementById('news-container');
+            const noRes = document.getElementById('no-results');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                noRes.classList.remove('hidden');
+            } else {
+                noRes.classList.add('hidden');
+                filtered.forEach(article => {
+                    container.innerHTML += renderNewsCard(article);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        // Função para atualizar o filtro de categoria
+        function setCategoryFilter(category) {
+            currentCategoryFilter = category;
+            
+            // Atualizar classes dos botões
+            const buttons = document.querySelectorAll('.category-filter-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Aplica o filtro imediatamente
+            applyFilters();
+        }
+
+        // Função para renderizar os botões de categoria
+        function renderCategoryButtons() {
+            const container = document.getElementById('category-filters');
+            // Mapeia todas as categorias para botões
+            container.innerHTML = categories.map(cat => {
+                const isActive = cat === currentCategoryFilter ? 'active' : ''; 
+                return `
+                    <button class="filter-btn category-filter-btn px-4 py-2 rounded-lg text-sm text-white ${isActive}"
+                            onclick="setCategoryFilter('${cat}')"
+                            data-category="${cat}">
+                        ${cat}
+                    </button>
+                `;
+            }).join('');
+        }
+        
+        // NOVO: Função para expandir/recolher o filtro
+        function toggleCategoryFilter() {
+            const wrapper = document.getElementById('category-filters-wrapper');
+            const arrow = document.getElementById('toggle-arrow');
+
+            wrapper.classList.toggle('open');
+            arrow.classList.toggle('rotated');
+        }
+
+        // Inicialização
+        function initNews() {
+            renderCategoryButtons();
+            // Abre o accordion de filtros por padrão no desktop (exemplo)
+            const wrapper = document.getElementById('category-filters-wrapper');
+            const arrow = document.getElementById('toggle-arrow');
+            if (window.innerWidth > 768) {
+                wrapper.classList.add('open');
+                arrow.classList.add('rotated');
+            }
+
+            applyFilters();
+        }
+    </script>
+</body>
+</html>
