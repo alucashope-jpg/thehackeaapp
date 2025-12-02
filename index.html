@@ -1,199 +1,711 @@
-<!DOCTYPE html>
-<html lang="es-CO">
+<!DOCTYPE ahtml>
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- TÍTULO ATUALIZADO --><title>La Clave Secreta para Recuperar a su Hombre</title>
-    <!-- Carrega o Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Importa a fonte LATO (Limpa e Profissional) do Google Fonts --><link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>HACKEA BRASIL | Recuperação e Blindagem de Contas Digitais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluindo Lucide Icons para os ícones dinâmicos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        /* Define a fonte Lato como padrão para o corpo e cabeçalhos */
         :root {
-            font-family: 'Lato', sans-serif;
+            --color-primary: #4f46e5;
+            --color-secondary: #14b8a6;
+            --color-dark: #0f172a;
+            --color-light: #f8fafc;
         }
-
-        /* ANIMAÇÃO CSS PARA O BOTÃO PULSANTE */
-        @keyframes pulse-once {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .cta-pulse {
-            animation: pulse-once 1.5s infinite; /* Aplica a animação infinita */
-        }
-
-        /* O content-wrapper garante que o conteúdo principal fique por cima do background */
-        .content-wrapper {
-            position: relative;
-            z-index: 20; /* Prioridade sobre o overlay z-10 */
-            padding-bottom: 1rem;
-        }
-        
-        /* Container responsivo para o vídeo (16:9) */
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            max-width: 640px; /* Limite o tamanho máximo do vídeo */
-            margin-left: auto;
-            margin-right: auto;
-            /* ADICIONA A BORDA VERMELHA */
-            border: 4px solid #D62828; /* primary-red */
-            border-radius: 1rem; /* Borda arredondada */
-            overflow: hidden; /* Garante que o iframe não saia da borda */
-        }
-
-        /* Aplica o estilo ao iframe do vídeo */
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        /* Adiciona padding na parte inferior do body para evitar que o conteúdo fique atrás do rodapé fixo */
         body {
-            padding-bottom: 3.5rem; /* Ajustado para acomodar o rodapé fixo */
-            font-family: 'Lato', sans-serif; /* Garante que a fonte seja aplicada diretamente */
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-dark);
+            color: var(--color-light);
+        }
+        /* Custom Scrollbar Styling for Dark Theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+        /* Pop-up for Social Proof */
+        #live-recovery-popup {
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
         }
 
-        /* Regra para garantir o peso extra-bold (900) na headline */
-        .font-extrabold {
-            font-weight: 900;
+        /* Spinner for Quiz Loading State */
+        .quiz-spinner {
+            border: 4px solid #475569;
+            border-top: 4px solid var(--color-secondary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
         }
-
-        /* Regra para garantir o peso light (300/400) no subtítulo */
-        .font-light {
-            font-weight: 300;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-red': '#D62828',
-                        'secondary-dark': '#1a1a1a',
-                        // CORES VERDES REMOVIDAS, RESTAURANDO O VERMELHO
-                    },
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-black text-white min-h-screen flex flex-col relative">
-    
-    <!-- OVERLAY PRETO TRANSPARENTE (50%) QUE COBRE TODA A TELA (z-10) --><div class="absolute inset-0 bg-black/50 z-10"></div>
+<body onload="initApp()">
 
-    <!-- PADDING SUPERIOR AJUSTADO PARA pt-8 (2.0rem) PARA MAIS ESPAÇO NO TOPO --><main class="content-wrapper flex-grow flex justify-center pt-8 px-3 sm:p-6">
-        <div class="w-full max-w-4xl text-center">
-            
-            <!-- HEADLINE PRINCIPAL --><h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight mb-3 tracking-tighter" style="color: white !important;">
-                La Clave Secreta Para Recuperar A Su Hombre
-            </h1>
-            
-            <!-- SUBHEADLINE COMPLEMENTAR --><h2 class="text-lg sm:text-xl md:text-2xl font-light mb-6 text-white">
-                ¡Basta De Sufrimiento! Descubre El Plan Exacto Para Que Regrese A Ti En 7 Días.
-            </h2>
+    <!-- Live Recovery Pop-up (Prova Social) -->
+    <div id="live-recovery-popup" class="fixed bottom-4 right-4 bg-teal-600/90 backdrop-blur-sm p-3 rounded-xl shadow-2xl text-white flex items-center space-x-2 w-72 transform translate-x-full opacity-0">
+        <i data-lucide="shield-check" class="w-5 h-5 flex-shrink-0"></i>
+        <div>
+            <p class="text-sm font-semibold" id="popup-message">@usuario_fake teve a conta recuperada!</p>
+            <p class="text-xs opacity-80" id="popup-time">há 1 min</p>
+        </div>
+    </div>
 
-            <!-- VÍDEO DO VIMEO --><div class="video-container shadow-2xl shadow-primary-red/70">
-                <iframe 
-                    id="vimeoPlayer"
-                    src="https://player.vimeo.com/video/803066706?title=0&byline=0&portrait=0" 
-                    width="640" 
-                    height="360" 
-                    frameborder="0" 
-                    allow="autoplay; fullscreen; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-
-            <!-- CHAMADA PARA ATIVAR O SOM (IMEDIATA) --><div class="mt-4 flex items-center justify-center space-x-2 max-w-sm mx-auto">
-                <span class="text-sm">🔊</span>
-                <p class="text-xs font-semibold uppercase text-gray-300">
-                    ¡ATENCIÓN: ACTIVA TU SONIDO Y MIRA HASTA EL FINAL!
-                </p>
-            </div>
-
-            <!-- CONTAINER DO BOTÃO (ESCONDIDO, SÓ APARECE APÓS 5 SEGUNDOS DE VÍDEO) --><div id="ctaContainer" class="hidden">
-                <!-- BOTÃO CTA PRINCIPAL: Pulsante. Link da Hotmart. CLASSES VERDES SUBSTITUÍDAS POR VERMELHAS --><a href="https://pay.hotmart.com/G103066699B?off=ap1nbqnv" class="inline-block mt-8 py-1.5 px-4 text-base sm:py-3 sm:px-10 sm:text-lg bg-primary-red hover:bg-red-700 text-white hover:text-white font-bold uppercase rounded-xl shadow-lg shadow-primary-red/50 transition duration-300 transform hover:scale-105 border-b-4 border-red-900 cta-pulse">
-                    ¡QUIERO DESCUBRIR EL MÉTODO AHORA!
+    <!-- Header / Sticky Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <!-- Centralizado verticalmente -->
+                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
+                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
+                    <div class="flex flex-col leading-none">
+                        <span class="text-teal-400 text-base">HACKEA</span>
+                        <span class="text-white text-base -mt-1">BRASIL</span>
+                    </div>
                 </a>
 
-                <!-- Chamada de Urgência Abaixo do Botão --><p class="text-xs mt-2 font-medium text-gray-300">
-                    OFERTA VÁLIDA SOLAMENTE MIENTRAS EL VIDEO ESTÉ AL AIRE.
-                </p>
-            </div>
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
+                    <a href="#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
+                    <a href="#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
+                    <a href="#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
+                    <a href="#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
+                    <!-- Links placeholders -->
+                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Notícias de Hack</a>
+                    <a href="#" class="text-slate-300 hover:text-teal-400 transition">Apps Modificados</a>
+                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING Mais em Conta</a>
+                </nav>
 
+                <!-- Action Button -->
+                <button onclick="showStatusModal()" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition ml-4">
+                    <i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>
+                    Acompanhar conta
+                </button>
+            </div>
         </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="proposta" class="py-10 lg:py-20 text-center bg-slate-900/50 border-b border-indigo-900">
+            <div class="max-w-4xl mx-auto px-4">
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+                    <span class="text-white">Sua conta de volta</span>
+                    <span class="text-teal-400 block sm:inline-block">em poucos passos.</span>
+                </h1>
+                <p class="mt-2 text-lg text-slate-300 max-w-2xl mx-auto">
+                    Perdeu sua conta? Nosso time de especialistas recupera e você só paga quando recuperarmos.
+                </p>
+
+                <div class="mt-10 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <!-- Mantendo Orçamento Grátis e Blindar Conta para o Hero -->
+                    <button onclick="showBudgetModal()" class="w-full sm:w-60 px-6 py-4 border border-transparent text-base font-bold rounded-xl shadow-xl text-white bg-teal-500 hover:bg-teal-600 transform transition-all duration-300 hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-teal-500/50">
+                        <i data-lucide="clipboard-list" class="w-5 h-5 inline-block mr-2"></i>
+                        Orçamento Grátis
+                    </button>
+                    <button onclick="showBlindagemModal()" class="w-full sm:w-60 px-6 py-4 border border-teal-500 text-base font-bold rounded-xl shadow-xl text-teal-500 bg-transparent hover:bg-teal-500 hover:text-white transform transition-all duration-300 hover:scale-[1.03] focus:outline-none focus:ring-4 focus:ring-teal-500/50">
+                        <i data-lucide="lock" class="w-5 h-5 inline-block mr-2"></i>
+                        Blindagem de Conta
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Grid -->
+        <section id="servicos" class="py-6 lg:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-white mb-10">O que podemos fazer por você</h2>
+
+            <!-- ALTERADO PARA GRID-COLS-2 NO MOBILE E CORES UNIFICADAS PARA TEAL -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                
+                <!-- Card 1: CONTAS - UNIFICADO PARA TEAL -->
+                <div class="p-4 sm:p-6 bg-slate-800 rounded-xl shadow-2xl border-b-4 border-teal-500 hover:bg-slate-700 transition duration-300 text-center group cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="mb-2 sm:mb-4 flex justify-center">
+                            <i data-lucide="shield-check" class="w-8 h-8 sm:w-10 sm:h-10 text-teal-500 group-hover:animate-pulse"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2 text-white">CONTAS</h3>
+                        <p class="text-xs sm:text-sm text-slate-400">Recuperamos Instagram, WhatsApp, Gmail, etc.</p>
+                    </div>
+                    <!-- Botão de Ação -->
+                    <button onclick="showBudgetModal()" class="mt-4 w-full py-2 text-xs sm:text-sm bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition shadow-md">
+                        Acessar
+                    </button>
+                </div>
+
+                <!-- Card 2: STREAMING - MANTIDO TEAL -->
+                <div class="p-4 sm:p-6 bg-slate-800 rounded-xl shadow-2xl border-b-4 border-teal-500 hover:bg-slate-700 transition duration-300 text-center group cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="mb-2 sm:mb-4 flex justify-center">
+                            <i data-lucide="tv" class="w-8 h-8 sm:w-10 sm:h-10 text-teal-500 group-hover:scale-110 transition"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2 text-white">STREAMING</h3>
+                        <p class="text-xs sm:text-sm text-slate-400">Consiga mais barato Netflix, Max, Disney, etc.</p>
+                    </div>
+                    <!-- Botão de Ação -->
+                    <button onclick="showBudgetModal()" class="mt-4 w-full py-2 text-xs sm:text-sm bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition shadow-md">
+                        Acessar
+                    </button>
+                </div>
+
+                <!-- Card 3: APKs - UNIFICADO PARA TEAL -->
+                <div class="p-4 sm:p-6 bg-slate-800 rounded-xl shadow-2xl border-b-4 border-teal-500 hover:bg-slate-700 transition duration-300 text-center group cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="mb-2 sm:mb-4 flex justify-center">
+                            <i data-lucide="settings" class="w-8 h-8 sm:w-10 sm:h-10 text-teal-500 group-hover:rotate-45 transition"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2 text-white">APKs</h3>
+                        <p class="text-xs sm:text-sm text-slate-400">Tenha aplicativos modificados gratuitamente aqui.</p>
+                    </div>
+                    <!-- Botão de Ação -->
+                    <button onclick="showBudgetModal()" class="mt-4 w-full py-2 text-xs sm:text-sm bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition shadow-md">
+                        Acessar
+                    </button>
+                </div>
+
+                <!-- Card 4: NOTÍCIAS - UNIFICADO PARA TEAL -->
+                <div class="p-4 sm:p-6 bg-slate-800 rounded-xl shadow-2xl border-b-4 border-teal-500 hover:bg-slate-700 transition duration-300 text-center group cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="mb-2 sm:mb-4 flex justify-center">
+                            <i data-lucide="newspaper" class="w-8 h-8 sm:w-10 sm:h-10 text-teal-500 group-hover:text-teal-400 transition"></i>
+                        </div>
+                        <h3 class="text-lg sm:text-xl font-bold mb-2 text-white">NOTÍCIAS</h3>
+                        <p class="text-xs sm:text-sm text-slate-400">Saiba sobre as últimas notícias sobre Hacking.</p>
+                    </div>
+                    <!-- Botão de Ação -->
+                    <button onclick="showBudgetModal()" class="mt-4 w-full py-2 text-xs sm:text-sm bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition shadow-md">
+                        Acessar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tools Section: Security Quiz and Link Scanner -->
+        <section id="ferramentas" class="py-10 lg:py-20 bg-slate-800 border-t border-b border-indigo-900">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-white mb-10">Ferramentas de Análise Instantânea</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    
+                    <!-- Quiz de Segurança Rápida -->
+                    <div class="p-8 bg-slate-900 rounded-xl shadow-2xl border-2 border-indigo-600">
+                        <h3 class="text-2xl font-bold text-indigo-400 mb-6 flex items-center">
+                            <i data-lucide="zap" class="w-6 h-6 mr-2"></i>
+                            Teste Rápido de Segurança
+                        </h3>
+
+                        <div id="quiz-area">
+                            <div id="quiz-question" class="quiz-step">
+                                <!-- Conteúdo injetado por JavaScript -->
+                            </div>
+
+                            <!-- Quiz Loading State -->
+                            <div id="quiz-loading" class="hidden text-center p-6 bg-slate-800 rounded-lg border border-slate-700">
+                                <div class="quiz-spinner mx-auto mb-4"></div>
+                                <p class="text-xl text-teal-400 font-semibold">Analisando 10 pontos de vulnerabilidade...</p>
+                                <p class="text-sm text-slate-400 mt-2">Aguarde, estamos cruzando dados com o banco de golpes em tempo real.</p>
+                            </div>
+
+                            <!-- Quiz Result State -->
+                            <div id="quiz-result" class="hidden text-center p-6 bg-slate-800 rounded-lg border-2 border-slate-700">
+                                <p class="text-3xl font-extrabold mb-4 text-white">Sua Nota de Segurança:</p>
+                                <div id="final-score" class="text-6xl font-black mb-6"></div>
+                                <p id="result-message" class="text-xl text-slate-300 mb-6"></p>
+                                <button onclick="showBlindagemModal()" class="py-3 px-6 bg-indigo-600 hover:bg-indigo-700 rounded-full text-white font-bold transition shadow-lg hover:shadow-xl">
+                                    <i data-lucide="lock-open" class="w-5 h-5 inline-block mr-2"></i>
+                                    Blindar Minha Conta Agora
+                                </button>
+                                <button onclick="resetQuiz()" class="mt-4 py-2 px-4 bg-slate-700 hover:bg-slate-600 rounded-full text-white font-semibold block w-full transition">Refazer Teste</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Scanner de Links Suspeitos -->
+                        <div class="p-8 bg-slate-900 rounded-xl shadow-2xl border-2 border-teal-600">
+                            <h3 class="text-2xl font-bold text-teal-400 mb-4 flex items-center">
+                                <i data-lucide="scan" class="w-6 h-6 mr-2"></i>
+                                Scanner de Links Suspeitos
+                            </h3>
+                            <p class="text-slate-400 mb-4">Cole o link que você recebeu para verificar a segurança antes de clicar e evitar phishing.</p>
+                            <input type="url" id="link-input" placeholder="Ex: https://sorteio-premiado-falso.com/login" class="w-full p-3 mb-4 rounded-lg bg-slate-700 text-white border border-slate-600 focus:ring-teal-500 focus:border-teal-500 transition">
+                            <button id="scan-button" onclick="handleScanLink()" class="w-full py-3 bg-teal-500 hover:bg-teal-600 rounded-lg text-white font-bold transition shadow-md">
+                                <i data-lucide="search" class="w-4 h-4 inline-block mr-2"></i>
+                                Analisar Link
+                            </button>
+                            <div id="scan-result" class="mt-4 p-3 rounded-lg text-center hidden transition-all duration-300">
+                                <p id="scan-message" class="text-lg font-semibold"></p>
+                                <div id="scanning-animation" class="mt-2 h-2 bg-slate-600 rounded-full overflow-hidden hidden">
+                                    <div class="h-full bg-teal-500 animate-pulse w-full origin-left transform" style="animation-duration: 2s;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Biblioteca de Golpes -->
+                        <div class="p-6 bg-slate-900 rounded-xl shadow-2xl border-2 border-slate-600">
+                            <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                                <i data-lucide="book-open" class="w-6 h-6 mr-2 text-slate-400"></i>
+                                Golpes em Alta
+                            </h3>
+                            <ul class="space-y-4 text-slate-300 mb-6">
+                                <li>
+                                    <strong class="text-red-400 block">Golpe do Falso Suporte Técnico:</strong> 
+                                    <!-- Ícone/Plataforma abaixo do título do golpe, menor e cinza -->
+                                    <div class="flex items-center space-x-1 mb-2 text-xs text-slate-500">
+                                        <i data-lucide="phone" class="w-3 h-3 text-slate-600"></i>
+                                        <span class="font-medium uppercase">Telefone/Email</span>
+                                    </div>
+                                    <p class="text-sm text-slate-400">Ligam dizendo que sua conta foi invadida e pedem dados de acesso ou pix.</p>
+                                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 transition block mt-1">[Ler Mais...]</a>
+                                </li>
+                                <li class="pt-2 border-t border-slate-700">
+                                    <strong class="text-yellow-400 block">Phishing de Pagamento/PIX:</strong>
+                                    <!-- Ícone/Plataforma abaixo do título do golpe, menor e cinza -->
+                                    <div class="flex items-center space-x-1 mb-2 text-xs text-slate-500">
+                                        <i data-lucide="message-square" class="w-3 h-3 text-slate-600"></i>
+                                        <span class="font-medium uppercase">WhatsApp/SMS</span>
+                                    </div>
+                                    <p class="text-sm text-slate-400">Mensagens de SMS/WhatsApp com links falsos para cobranças urgentes ou estornos.</p>
+                                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 transition block mt-1">[Ler Mais...]</a>
+                                </li>
+                                <li class="pt-2 border-t border-slate-700">
+                                    <strong class="text-blue-400 block">Sequestro de WhatsApp com Código:</strong>
+                                    <!-- Ícone/Plataforma abaixo do título do golpe, menor e cinza -->
+                                    <div class="flex items-center space-x-1 mb-2 text-xs text-slate-500">
+                                        <i data-lucide="message-square" class="w-3 h-3 text-slate-600"></i>
+                                        <span class="font-medium uppercase">WhatsApp</span>
+                                    </div>
+                                    <p class="text-sm text-slate-400">Clonam seu número pedindo o código de 6 dígitos que chega por SMS.</p>
+                                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 transition block mt-1">[Ler Mais...]</a>
+                                </li>
+                                <li class="pt-2 border-t border-slate-700">
+                                    <strong class="text-purple-400 block">Perfis Falsos (Clone):</strong>
+                                    <!-- Ícone/Plataforma abaixo do título do golpe, menor e cinza -->
+                                    <div class="flex items-center space-x-1 mb-2 text-xs text-slate-500">
+                                        <i data-lucide="instagram" class="w-3 h-3 text-slate-600"></i>
+                                        <span class="font-medium uppercase">Instagram/Facebook</span>
+                                    </div>
+                                    <p class="text-sm text-slate-400">Golpistas criam perfis idênticos aos seus amigos para pedir dinheiro urgente via Pix.</p>
+                                    <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 transition block mt-1">[Ler Mais...]</a>
+                                </li>
+                            </ul>
+                            <div class="flex justify-end">
+                                <a href="#" class="inline-flex items-center px-4 py-2 text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-md">
+                                    <i data-lucide="eye" class="w-5 h-5 mr-2"></i>
+                                    Mais Golpes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="valores" class="py-16 lg:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-white mb-12">Escolha Seu Plano de Proteção</h2>
+            <!-- NOVO TEXTO ABRANGENTE -->
+            <p class="text-xl text-slate-400 text-center mb-16 max-w-3xl mx-auto">A proteção que você precisa, seja para reverter um ataque emergencial ou blindar seu futuro digital contra qualquer ameaça.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Plano Básico -->
+                <div class="p-8 bg-slate-800 rounded-xl shadow-2xl border-t-4 border-slate-700 hover:border-teal-500 transition duration-300">
+                    <h3 class="text-2xl font-bold text-white mb-4">Básico</h3>
+                    <p class="text-slate-400 mb-6">Recuperação de Conta Simples e Rápida.</p>
+                    <div class="text-4xl font-extrabold text-teal-500 mb-8">
+                        R$ 27,90
+                        <span class="text-base text-slate-500 font-normal block">A partir de</span>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 mb-8">
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Recuperar 1 Rede Social</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Remoção de Invasor</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> 30 Dias de Garantia</li>
+                        <li class="flex items-center"><i data-lucide="x" class="w-5 h-5 mr-2 text-red-400"></i> Blindagem de Segurança</li>
+                        <li class="flex items-center"><i data-lucide="x" class="w-5 h-5 mr-2 text-red-400"></i> Prioridade de Recuperação</li>
+                    </ul>
+                    <button onclick="showBudgetModal()" class="w-full py-3 bg-teal-500 hover:bg-teal-600 rounded-lg text-white font-bold transition shadow-md">Pagar agora</button>
+                    <p class="text-xs text-slate-400 mt-2 text-center flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-4 h-4 mr-1"></i> Cartão de crédito / Pix
+                    </p>
+                </div>
+
+                <!-- Plano Premium (Popular) -->
+                <div class="p-8 bg-slate-900 rounded-xl shadow-2xl border-t-4 border-indigo-600 transform scale-[1.05] relative ring-4 ring-indigo-600">
+                    <span class="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">POPULAR</span>
+                    <h3 class="text-2xl font-bold text-indigo-400 mb-4">Premium</h3>
+                    <p class="text-slate-400 mb-6">Recuperação Completa + Blindagem Preventiva.</p>
+                    <div class="text-4xl font-extrabold text-indigo-500 mb-8">
+                        R$ 197,90
+                        <span class="text-base text-slate-500 font-normal block">ou 6x de R$ 35,50 no cartão.</span>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 mb-8">
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Recuperar 1 Rede Social</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Remoção de Invasor</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Blindagem de até 3 Contas</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Prioridade de Recuperação</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> 90 Dias de Garantia</li>
+                        <li class="flex items-center"><i data-lucide="x" class="w-5 h-5 mr-2 text-red-400"></i> Suporte Jurídico</li>
+                        <li class="flex items-center"><i data-lucide="x" class="w-5 h-5 mr-2 text-red-400"></i> Rastreamento de Invasor</li>
+                    </ul>
+                    <button onclick="showBlindagemModal()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-bold transition shadow-lg">Pagar agora</button>
+                    <p class="text-xs text-slate-400 mt-2 text-center flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-4 h-4 mr-1"></i> Cartão de crédito / Pix
+                    </p>
+                </div>
+
+                <!-- Plano Empresarial -->
+                <div class="p-8 bg-slate-800 rounded-xl shadow-2xl border-t-4 border-slate-700 hover:border-teal-500 transition duration-300">
+                    <h3 class="text-2xl font-bold text-white mb-4">Empresarial</h3>
+                    <p class="text-slate-400 mb-6">Segurança contínua e treinamento para equipes.</p>
+                    <div class="text-4xl font-extrabold text-teal-500 mb-8">
+                        R$ 1.099,99
+                        <span class="text-base text-slate-500 font-normal block">ou 12x de R$ 118,00</span>
+                    </div>
+                    <ul class="space-y-3 text-slate-300 mb-8">
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Tudo do Plano Premium</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Atendimento Jurídico</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Rastreamento de Invasor</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Blindagem para +5 Colaboradores</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> Relatórios Semanais</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-5 h-5 mr-2 text-green-400"></i> 365 Dias de Garantia</li>
+                    </ul>
+                    <button onclick="showBudgetModal()" class="w-full py-3 bg-teal-500 hover:bg-teal-600 rounded-lg text-white font-bold transition shadow-md">Pagar agora</button>
+                    <p class="text-xs text-slate-400 mt-2 text-center flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-4 h-4 mr-1"></i> Cartão de crédito / Pix
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="py-10 lg:py-16 bg-slate-900/50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-white mb-8">Perguntas Frequentes (FAQ)</h2>
+
+                <div class="space-y-4">
+                    <!-- FAQ Item 1 -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                        <button class="w-full flex justify-between items-center p-5 text-lg font-semibold text-white hover:bg-slate-700 transition rounded-xl" onclick="toggleFaq(1)">
+                            Preciso informar meus dados?
+                            <i id="icon-1" data-lucide="chevron-down" class="w-5 h-5 transition-transform"></i>
+                        </button>
+                        <div id="content-1" class="hidden p-5 pt-0 text-slate-400 border-t border-slate-700">
+                            Sim, os dados para a recuperação da conta são extremamente imporante, incluindo e-mails, senhas e data de nascimento por exemplo.
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 2 -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                        <button class="w-full flex justify-between items-center p-5 text-lg font-semibold text-white hover:bg-slate-700 transition rounded-xl" onclick="toggleFaq(2)">
+                            Qual o tempo médio para recuperar uma conta?
+                            <i id="icon-2" data-lucide="chevron-down" class="w-5 h-5 transition-transform"></i>
+                        </button>
+                        <div id="content-2" class="hidden p-5 pt-0 text-slate-400 border-t border-slate-700">
+                            Varia conforme a plataforma e o nível de comprometimento da conta. Em geral, conseguimos iniciar o processo de redefinição de 12 horas a 30 dias após a análise inicial e o fornecimento de toda as informações necessária pelo cliente.
+                        </div>
+                    </div>
+
+                    <!-- FAQ Item 3 -->
+                    <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700">
+                        <button class="w-full flex justify-between items-center p-5 text-lg font-semibold text-white hover:bg-slate-700 transition rounded-xl" onclick="toggleFaq(3)">
+                            Posso usar a Blindagem de Conta mesmo sem ter sido hackeado?
+                            <i id="icon-3" data-lucide="chevron-down" class="w-5 h-5 transition-transform"></i>
+                        </button>
+                        <div id="content-3" class="hidden p-5 pt-0 text-slate-400 border-t border-slate-700">
+                            Sim, e é altamente recomendado! A Blindagem é um serviço preventivo que fortalece todas as barreiras de segurança das suas contas, minimizando drasticamente o risco de invasões futuras. Prevenir é sempre mais fácil e barato que recuperar.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- RODAPÉ FIXO (z-50) traduzido para espanhol --><footer class="w-full bg-secondary-dark/90 py-3 text-center text-xs text-gray-400 border-t border-gray-700 fixed bottom-0 left-0 right-0 z-50">
-        <div class="max-w-4xl mx-auto px-4">
-            <!-- SEPARAÇÃO DAS LINHAS DE DIREITOS AUTORAIS --><p>&copy; 2025 Claves de la Conquista</p>
-            <p class="mt-1">Todos los Derechos Reservados</p>
-            <div class="mt-1 space-x-3">
-                <!-- LINK ATUALIZADO PARA 'terminosdeuso.html' --><a href="terminosdeuso.html" class="hover:text-primary-red transition duration-200">Términos de Uso</a>
-                <span class="text-gray-600">|</span>
-                <!-- LINK ATUALIZADO PARA 'politicadeprivacidad.html' --><a href="politicadeprivacidad.html" class="hover:text-primary-red transition duration-200">Política de Privacidad</a>
-                <span class="text-gray-600">|</span>
-                <a href="#" class="hover:text-primary-red transition duration-200">Contacto</a>
+    <!-- Footer -->
+    <footer>
+        <div class="bg-slate-900 border-t border-indigo-900 py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
+                    <i data-lucide="shield-half" class="w-5 h-5"></i>
+                    <span>HACKEA BRASIL</span>
+                </div>
+                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados. Recuperando o que é seu.</p>
             </div>
         </div>
     </footer>
 
-    <!-- SCRIPT PARA CARREGAR A API DO VIMEO PLAYER --><script src="https://player.vimeo.com/api/player.js"></script> 
-
-    <!-- SCRIPT PARA MOSTRAR O BOTÃO APÓS 5 SEGUNDOS DE REPRODUÇÃO DO VÍDEO --><script>
+    <script>
+        // Inicializa os ícones do Lucide no carregamento do DOM
         document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('ctaContainer');
-            const iframe = document.getElementById('vimeoPlayer');
-
-            if (iframe && container && typeof Vimeo !== 'undefined') {
-                // Inicializa el reproductor de Vimeo
-                const player = new Vimeo.Player(iframe);
-                
-                // Variable para garantir que el CTA solo apareça una vez
-                let ctaShown = false;
-
-                // Define el tiempo que el CTA debe aparecer (en segundos)
-                const targetTime = 5;
-
-                // Listener para el evento 'timeupdate' (actualiza el tiempo de reproducción)
-                player.on('timeupdate', function(data) {
-                    // Comprueba si el CTA aún no se ha mostrado y si el tiempo actual es >= 5 segundos
-                    if (!ctaShown && data.seconds >= targetTime) {
-                        // El tiempo objetivo se ha alcanzado: muestra el CTA
-                        container.classList.remove('hidden');
-                        ctaShown = true;
-                        
-                        // Opcional: Elimina el listener después de que se muestre el CTA para ahorrar recursos
-                        player.off('timeupdate');
-                    }
-                });
-
-                // Fallback de seguridad: Si el video termina sin que el CTA se haya mostrado, muéstralo.
-                player.on('ended', function() {
-                    if (!ctaShown) {
-                        container.classList.remove('hidden');
-                        ctaShown = true;
-                    }
-                });
-
-            } else {
-                // FALLBACK: Si la API de Vimeo no se carga o los elementos no se encuentran, 
-                // usa el timeout de 5 segundos anterior como seguridad.
-                const delayTime = 5000;
-                setTimeout(() => {
-                    if (container) {
-                        container.classList.remove('hidden');
-                    }
-                }, delayTime);
-            }
+            lucide.createIcons();
+            // Inicia a primeira pergunta do Quiz
+            renderQuizQuestion(currentQuestionIndex);
         });
+
+        // --- Funções Placeholder para Ações Reais ---
+        // Removendo 'alert()' por motivos de compatibilidade de ambiente (iFrame).
+        function showBudgetModal() { 
+            console.log("Ação: Mostrar modal de Orçamento Grátis.");
+            // Implementação real seria um modal/formulário aqui.
+        }
+        function showBlindagemModal() { 
+            console.log("Ação: Mostrar modal de Blindagem de Conta.");
+            // Implementação real seria um modal/formulário aqui.
+        }
+        function showStatusModal() {
+            console.log("Ação: Mostrar modal de Acompanhamento de Conta.");
+            // Implementação real seria um modal/formulário aqui.
+        }
+
+        // --- Lógica do FAQ (Acordeão) ---
+        function toggleFaq(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            const isHidden = content.classList.contains('hidden');
+
+            // Fecha todos os outros FAQs
+            document.querySelectorAll('[id^="content-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="icon-"]').forEach(el => el.classList.remove('rotate-180'));
+
+            if (isHidden) {
+                // Abre o item clicado
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                // Fecha o item clicado
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        // --- Lógica do Quiz de Segurança ---
+
+        // isRisky: define qual resposta (Sim/Não) é a insegura, levando a uma pontuação menor.
+        // Sim = Seguro (isRisky: false) / Não = Risco (isRisky: true)
+        const quizData = [
+            { q: "Sua senha tem mais de 8 caracteres?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você já trocou sua senha nos últimos 6 meses?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você usa senhas diferentes para e-mail e redes sociais?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você usa gerenciador de senhas?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você tem 2FA (autenticação de 2 fatores) ativado em todas as contas?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Sua senha do e-mail é exclusiva e forte?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você evita logar em contas importantes usando Wi-Fi público?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você deixa muitas abas abertas com login ativo por dias?", isRisky: true }, // Sim=Risco (Não=Seguro) (score--)
+            { q: "Sua senha contém letras maiúsculas, minúsculas, números e símbolos?", isRisky: false }, // Sim=Seguro (score++)
+            { q: "Você usa 2FA por SMS (código via telefone) em vez de App (Google Auth)?", isRisky: true }, // Sim=Risco (Não=Seguro) (score--)
+        ];
+        let quizScore = 0;
+        let currentQuestionIndex = 0;
+        
+        const quizQuestionDiv = document.getElementById('quiz-question');
+        const quizResultDiv = document.getElementById('quiz-result');
+        const quizLoadingDiv = document.getElementById('quiz-loading');
+
+        function renderQuizQuestion(index) {
+            if (index >= quizData.length) {
+                showQuizLoading();
+                return;
+            }
+
+            const data = quizData[index];
+            // Renderiza a pergunta sem o contador (1/10)
+            quizQuestionDiv.innerHTML = `
+                <p class="text-lg font-semibold mb-4 text-white">${data.q}</p>
+                <div class="flex space-x-4">
+                    <button onclick="answerQuiz(true)" class="flex-1 py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-white font-bold transition">Sim</button>
+                    <button onclick="answerQuiz(false)" class="flex-1 py-3 bg-teal-500 hover:bg-teal-600 rounded-lg text-white font-bold transition">Não</button>
+                </div>
+            `;
+            quizQuestionDiv.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function answerQuiz(userAnswerIsYes) {
+            const data = quizData[currentQuestionIndex];
+            
+            // Lógica de pontuação: +1 se a resposta do usuário for a segura/ideal
+            // A resposta ideal é: (Sim E não-risco) OU (Não E risco).
+            if ((userAnswerIsYes && !data.isRisky) || (!userAnswerIsYes && data.isRisky)) {
+                quizScore += 1;
+            }
+
+            currentQuestionIndex++;
+            renderQuizQuestion(currentQuestionIndex);
+        }
+
+        function showQuizLoading() {
+            quizQuestionDiv.classList.add('hidden');
+            quizLoadingDiv.classList.remove('hidden');
+            
+            // Simula o tempo de análise
+            setTimeout(showQuizResult, 3000);
+        }
+
+        function showQuizResult() {
+            quizLoadingDiv.classList.add('hidden');
+            quizResultDiv.classList.remove('hidden');
+            
+            const finalScoreElement = document.getElementById('final-score');
+            const resultMessageElement = document.getElementById('result-message');
+            
+            finalScoreElement.textContent = `${quizScore}/${quizData.length}`;
+
+            // Remove classes antigas e define a mensagem e cor com base na pontuação
+            finalScoreElement.classList.remove('text-red-500', 'text-yellow-400', 'text-green-400');
+            
+            if (quizScore <= 4) {
+                resultMessageElement.textContent = "ALERTA CRÍTICO! Seu ambiente digital é altamente vulnerável. Requer blindagem imediata.";
+                finalScoreElement.classList.add('text-red-500');
+            } else if (quizScore <= 7) {
+                resultMessageElement.textContent = "ATENÇÃO. Você tem riscos médios. Blindar sua conta agora fechará as principais brechas de segurança.";
+                finalScoreElement.classList.add('text-yellow-400');
+            } else {
+                resultMessageElement.textContent = "Excelente! Sua segurança é alta. Mas nunca é demais reforçar. Mantenha-se protegido.";
+                finalScoreElement.classList.add('text-green-400');
+            }
+
+            lucide.createIcons();
+        }
+
+        function resetQuiz() {
+            quizScore = 0;
+            currentQuestionIndex = 0;
+            quizResultDiv.classList.add('hidden');
+            renderQuizQuestion(currentQuestionIndex);
+        }
+
+        // --- Lógica do Scanner de Links Suspeitos (Simulação) ---
+        function handleScanLink() {
+            const linkInput = document.getElementById('link-input');
+            const scanButton = document.getElementById('scan-button');
+            const scanResult = document.getElementById('scan-result');
+            const scanMessage = document.getElementById('scan-message');
+            const scanningAnimation = document.getElementById('scanning-animation');
+            const url = linkInput.value.trim();
+
+            if (!url) {
+                scanResult.classList.remove('hidden');
+                scanResult.className = 'mt-4 p-3 bg-red-800 rounded-lg text-center';
+                scanMessage.textContent = "Por favor, insira um link válido para a análise.";
+                scanningAnimation.classList.add('hidden');
+                return;
+            }
+
+            // Inicia o estado de carregamento
+            scanButton.disabled = true;
+            scanButton.innerHTML = '<div class="quiz-spinner w-5 h-5 inline-block mr-2"></div> Analisando...';
+            scanResult.classList.remove('hidden');
+            scanResult.className = 'mt-4 p-3 bg-slate-700 rounded-lg text-center';
+            scanMessage.textContent = "Verificando contra 12 bases de dados de phishing...";
+            scanningAnimation.classList.remove('hidden');
+
+            setTimeout(() => {
+                // Lógica de simulação de resultado
+                const isSafe = !url.includes("login") && !url.includes("sorteio") && !url.includes("oferta") && !url.includes("pix");
+                
+                scanButton.disabled = false;
+                scanButton.innerHTML = '<i data-lucide="search" class="w-4 h-4 inline-block mr-2"></i> Analisar Link';
+                scanningAnimation.classList.add('hidden');
+
+                if (isSafe) {
+                    scanResult.className = 'mt-4 p-3 bg-green-800 rounded-lg text-center';
+                    scanMessage.textContent = `[SEGURO] O link "${url.substring(0, 30)}..." parece legítimo.`;
+                } else {
+                    scanResult.className = 'mt-4 p-3 bg-red-800 rounded-lg text-center';
+                    scanMessage.textContent = `[ALERTA!] O link "${url.substring(0, 30)}..." é SUSPEITO. NÃO CLIQUE.`;
+                }
+                lucide.createIcons();
+            }, 3000); // 3 segundos de simulação de análise
+        }
+
+        // --- Lógica de Pop-up (Prova Social) ---
+
+        const popup = document.getElementById('live-recovery-popup');
+        const popupMessage = document.getElementById('popup-message');
+        const popupTime = document.getElementById('popup-time');
+        const fakeUsers = [
+            { user: "@joaodasilva", time: "5 min" },
+            { user: "@mari_gomes", time: "10 min" },
+            { user: "@empresa_alpha", time: "15 min" },
+            { user: "@leo_santos", time: "2 min" },
+            { user: "@blogueira_sp", time: "8 min" },
+        ];
+        let userIndex = 0;
+        let popupCount = 0;
+        const popupLimit = 3; // Limite total de 3 exibições
+        const popupInterval = 120000; // 2 minutos (120000ms)
+        const firstDelay = 8000;      // 8 segundos (8000ms)
+        let popupTimer = null;
+
+        function censorUser(username) {
+            // Censura os 3 últimos caracteres do nome de usuário, mantendo o @
+            if (username.length > 3) {
+                return username.substring(0, username.length - 3) + '***';
+            }
+            return username;
+        }
+
+        function updatePopup() {
+            if (popupCount >= popupLimit) {
+                // Se atingiu o limite, para o cronômetro.
+                if (popupTimer) {
+                    clearInterval(popupTimer);
+                    popupTimer = null;
+                }
+                return;
+            }
+            
+            const user = fakeUsers[userIndex];
+            const censoredUsername = censorUser(user.user);
+            
+            // 1. Esconde/Prepara para transição de saída
+            popup.classList.add('opacity-0', 'translate-x-full');
+
+            setTimeout(() => {
+                // 2. Atualiza o conteúdo com o nome censurado
+                popupMessage.textContent = `${censoredUsername} teve a conta recuperada!`;
+                popupTime.textContent = `há ${user.time}`;
+                
+                // 3. Mostra o pop-up
+                popup.classList.remove('translate-x-full');
+                popup.classList.remove('opacity-0');
+                
+                // 4. Atualiza o contador de exibições e o índice do usuário
+                popupCount++;
+                userIndex = (userIndex + 1) % fakeUsers.length;
+
+                // 5. Esconde novamente após 5 segundos
+                setTimeout(() => {
+                    popup.classList.add('opacity-0', 'translate-x-full');
+                }, 5000); // Visível por 5 segundos
+            }, 500); // 500ms para transição de entrada
+        }
+
+        function startPopupInterval() {
+            // Inicia o cronômetro para as exibições subsequentes (2ª e 3ª)
+            if (popupTimer === null) {
+                popupTimer = setInterval(updatePopup, popupInterval);
+            }
+        }
+
+        function initApp() {
+            // Primeira exibição após 8 segundos
+            setTimeout(() => {
+                updatePopup(); // 1ª exibição
+                startPopupInterval(); // Inicia o timer de 2 minutos para as próximas
+            }, firstDelay);
+
+            lucide.createIcons();
+            renderQuizQuestion(currentQuestionIndex);
+        }
     </script>
 </body>
 </html>
