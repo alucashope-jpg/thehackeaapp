@@ -1,737 +1,266 @@
-<!DOCTYPE ahtml>
-<html lang="pt-BR" class="scroll-smooth">
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HACKEA BRASIL | Acompanhamento de Pedidos</title>
+    <title>Locação de Brinquedos - Brinque Mais</title>
+    <!-- Carrega o Tailwind CSS para o estilo -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --color-primary: #4f46e5; /* Indigo */
-            --color-secondary: #14b8a6; /* Teal */
-            --color-dark: #070e17; /* Very Dark Blue */
-            --color-bg-card: #151f2e;
-            --color-light: #f8fafc;
-            --color-success: #10b981; /* Emerald */
-            --color-error: #ef4444; /* Red */
-            
-            /* Tamanho exato do círculo */
-            --progress-dot-size: 38px; 
-            --progress-line-height: 5px;
-        }
+        /* Define a fonte Inter como padrão */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--color-dark);
-            background-image: radial-gradient(circle at 1px 1px, rgba(30, 41, 59, 0.4) 1px, transparent 0);
-            background-size: 20px 20px;
-            color: var(--color-light);
             min-height: 100vh;
-        }
-        /* Nova classe para bloquear a rolagem */
-        body.no-scroll {
-            overflow: hidden;
-        }
-        /* Custom Scrollbar Styling */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
-        
-        .card-shadow {
-            box-shadow: 0 0 30px rgba(79, 70, 229, 0.1), 0 0 5px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-        .status-success-shadow {
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-        .status-error-shadow {
-            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2), 0 0 5px rgba(0, 0, 0, 0.5);
-        }
-
-        /* ------------------------------------------- */
-        /* CSS ESTRUTURAL DA BARRA DE PROGESSO       */
-        /* ------------------------------------------- */
-        
-        .progress-wrapper {
-            position: relative;
-            /* Espaço reservado para o texto que é absolute */
-            padding-bottom: 30px; 
-            margin-top: 20px;
-        }
-
-        .progress-steps-container {
-            display: flex;
-            justify-content: space-between; /* Garante distribuição igual */
-            align-items: flex-start;
-            position: relative;
-            z-index: 2;
-            width: 100%;
-        }
-
-        /* Linhas de Fundo e Preenchimento */
-        .progress-track {
-            position: absolute;
-            top: calc(var(--progress-dot-size) / 2 - var(--progress-line-height) / 2);
-            left: 0;
-            right: 0;
-            height: var(--progress-line-height);
-            background-color: #334155;
-            z-index: 1;
-            border-radius: 10px;
-        }
-        
-        .progress-fill {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background-color: var(--color-success); /* Cor padrão de progresso (VERDE) */
-            border-radius: 10px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-        }
-
-        /* Item do Passo (Container do Dot) */
-        .progress-step {
-            position: relative;
-            /* A largura do container do passo é EXATAMENTE a largura do círculo. */
-            width: var(--progress-dot-size); 
             display: flex;
             flex-direction: column;
+            background-color: #f7f9fc; /* Fundo levemente acinzentado */
         }
-
-        /* O Círculo (Dot) */
-        .progress-dot {
-            width: var(--progress-dot-size);
-            height: var(--progress-dot-size);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
-            color: var(--color-bg-card); 
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-            z-index: 10; /* Acima da linha */
+        /* Define o layout principal para empurrar o footer para baixo e dar espaço à bottom bar */
+        #main-content {
+            flex-grow: 1;
+            padding-bottom: 5rem; /* Espaço para a bottom bar fixa */
         }
-
-        /* Texto (Label) - Posicionamento Absoluto para não afetar largura */
-        .step-label {
-            position: absolute;
-            top: 100%; /* Logo abaixo do dot */
-            margin-top: 8px;
-            font-size: 11px;
-            font-weight: 500;
-            white-space: nowrap;
-            color: #94a3b8;
+        /* Cor primária (Azul) */
+        .color-primary {
+            background-color: #3b82f6; /* Blue 500 */
         }
-
-        /* ALINHAMENTOS ESPECÍFICOS (Mantidos) */
-        .progress-step:first-child { align-items: flex-start; }
-        .progress-step:first-child .step-label { left: 0; text-align: left; }
-
-        .progress-step:last-child { align-items: flex-end; }
-        .progress-step:last-child .step-label { right: 0; text-align: right; }
-
-        .progress-step:not(:first-child):not(:last-child) { align-items: center; }
-        .progress-step:not(:first-child):not(:last-child) .step-label {
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
+        /* Cor secundária (Amarelo) */
+        .color-secondary {
+            background-color: #facc15; /* Yellow 400 */
         }
-
-        /* ------------------------------------------- */
-        /* CORES DE ESTADO (Atualizadas para VERDE/VERMELHO) */
-        /* ------------------------------------------- */
         
-        /* Etapa Concluída (Agora VERDE por padrão, como solicitado) */
-        .dot-passed { background-color: var(--color-success); color: white; }
-        .label-passed { color: var(--color-success); font-weight: 700; }
-        
-        /* Etapa Atual (Agora VERDE e pulsando em VERDE) */
-        .dot-current { 
-            background-color: var(--color-success); 
-            color: white; 
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.4); /* Sombra Verde */
-            animation: pulse-ring 2s infinite;
+        /* Estilo para o menu hambúrguer - Cor da barra ajustada para o header BRANCO */
+        .burger-icon span {
+            display: block;
+            height: 3px;
+            width: 25px;
+            background: #3b82f6; /* Azul primário para contraste */
+            margin: 4px 0;
+            transition: all 0.3s ease-in-out;
         }
-        .label-current { color: var(--color-success); font-weight: 800; }
-
-        /* Etapa Pendente (Mantida) */
-        .dot-pending { background-color: #334155; color: #94a3b8; }
-        .label-pending { color: #64748b; }
-
-        /* Estilos de ERRO (Vermelho) */
-        .dot-error { background-color: var(--color-error); color: white; }
-        .label-error { color: var(--color-error); font-weight: 700; }
-        
-        @keyframes pulse-ring {
-            /* Animação de pulso agora em VERDE */
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        /* Esconde o menu de navegação grande por padrão */
+        .nav-menu {
+            display: none;
         }
 
-        /* Ajustes Mobile */
-        @media (max-width: 640px) {
-            .step-label { font-size: 10px; }
-            :root { --progress-dot-size: 32px; }
+        /* Estilos específicos para a barra inferior (mobile) */
+        #bottom-nav {
+            z-index: 50; /* Garante que fique acima de outros conteúdos */
         }
 
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-overlay.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        .modal-content {
-            background-color: var(--color-bg-card);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
-            max-width: 90%;
-            width: 400px;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .modal-overlay.open .modal-content {
-            transform: scale(1);
-        }
+        /* Classes Tailwind customizadas para cores */
+        .bg-primary { background-color: #3b82f6; }
+        .text-primary { color: #3b82f6; }
+        .bg-secondary { background-color: #facc15; }
+        .text-secondary { color: #facc15; }
+
     </style>
-</head>
-<body onload="initTracker()">
+    <script>
+        // Função para alternar a visibilidade do menu
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
 
-    <!-- Header -->
-    <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm shadow-lg border-b border-indigo-900">
+        // Simula o clique dos botões da barra inferior
+        function handleBottomButtonClick(pageName) {
+            // Esta função apenas simula a navegação
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+
+            messageText.textContent = `Ação: Ir para a página de '${pageName}' (A navegação será implementada em outra etapa).`;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000); // Esconde a mensagem após 3 segundos
+        }
+
+        // Função para fechar a caixa de mensagem
+        function closeMessage() {
+            document.getElementById('message-box').classList.add('hidden');
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Caixa de Mensagem (Substitui o alert()) -->
+    <div id="message-box" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 bg-primary text-white p-4 rounded-lg shadow-xl z-50 transition duration-300 ease-in-out">
+        <p id="message-text" class="font-semibold"></p>
+        <button onclick="closeMessage()" class="absolute top-1 right-2 text-xl font-bold">&times;</button>
+    </div>
+
+    <!-- 1. CABEÇALHO (Header) - Fixo no topo - Agora BRANCO -->
+    <header class="bg-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center space-x-2 text-xl font-extrabold">
-                    <i data-lucide="shield-half" class="w-5 h-5 text-teal-400 flex-shrink-0"></i>
-                    <div class="flex flex-col leading-none">
-                        <span class="text-teal-400 text-base">HACKEA</span>
-                        <span class="text-white text-base -mt-1">BRASIL</span>
+            <!-- Container principal do cabeçalho - RELATIVE para centrar o logo ABSOLUTAMENTE -->
+            <div class="flex justify-between items-center h-16 relative">
+
+                <!-- 1. LADO ESQUERDO: Botão Menu Hambúrguer (Mobile) / Links (Desktop) -->
+                
+                <!-- Botão Menu Hambúrguer (Apenas Mobile/Tablet) -->
+                <button type="button" class="lg:hidden text-primary hover:text-secondary p-2 rounded-md z-10" aria-controls="mobile-menu" aria-expanded="false" onclick="toggleMenu()">
+                    <div class="burger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </div>
-                </a>
-                <nav class="hidden md:flex md:space-x-6 text-sm font-medium">
-                    <a href="index.html#proposta" class="text-slate-300 hover:text-teal-400 transition">Proposta</a>
-                    <a href="index.html#servicos" class="text-slate-300 hover:text-teal-400 transition">Serviços</a>
-                    <a href="index.html#ferramentas" class="text-slate-300 hover:text-teal-400 transition">Ferramentas</a>
-                    <a href="index.html#valores" class="text-slate-300 hover:text-teal-400 transition">Planos</a>
-                    <a href="#" class="text-indigo-400 hover:text-indigo-300 transition font-bold">STREAMING</a>
-                </nav>
-                <button onclick="window.location.href='index.html'" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 transition ml-4">
-                    <i data-lucide="home" class="w-3 h-3 mr-1"></i>
-                    Início
                 </button>
+
+                <!-- Menu de Navegação (Desktop - Escondido no Mobile) -->
+                <nav class="hidden lg:flex lg:space-x-8 nav-menu">
+                    <a href="#" class="text-primary hover:text-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Início</a>
+                    <a href="#" class="text-primary hover:text-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Brinquedos</a>
+                </nav>
+
+                <!-- 2. CENTRO: Logo Centralizada (Imagem) -->
+                <!-- Posição ABSOLUTA para garantir que o logo fique exatamente no centro horizontal, independentemente dos elementos laterais -->
+                <div class="absolute left-1/2 transform -translate-x-1/2 z-0">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdX7GkygoIKwK06MzeweiE0GPt5I1rsz808w&s" 
+                         alt="Logo Brinque Mais" 
+                         class="w-12 h-12 rounded-full border-2 border-secondary object-cover shadow-lg"
+                         onerror="this.onerror=null;this.src='https://placehold.co/48x48/3b82f6/facc15?text=Logo'"> <!-- Fallback caso a URL falhe -->
+                </div>
+
+                <!-- 3. LADO DIREITO: Ícone de Notificações (Mobile) / Mais Links (Desktop) -->
+
+                <!-- Links de Exemplo Desktop (Continuação da nav) -->
+                <nav class="hidden lg:flex lg:space-x-8 nav-menu ml-auto">
+                    <a href="#" class="text-primary hover:text-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Como Funciona</a>
+                    <a href="#" class="text-primary hover:text-secondary px-3 py-2 rounded-md text-sm font-medium transition duration-150">Contato</a>
+                </nav>
+                
+                <!-- Ícone de Notificações (Apenas Mobile/Tablet) -->
+                <button onclick="handleBottomButtonClick('Notificações')" class="text-primary hover:text-secondary p-2 rounded-full z-10 lg:hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Mobile (Abre e fecha com o botão hambúrguer) -->
+        <div class="lg:hidden hidden bg-primary" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#" class="bg-blue-600 text-white block px-3 py-2 rounded-md text-base font-medium">Início</a>
+                <a href="#" class="text-white hover:bg-blue-500 block px-3 py-2 rounded-md text-base font-medium">Brinquedos</a>
+                <a href="#" class="text-white hover:bg-blue-500 block px-3 py-2 rounded-md text-base font-medium">Como Funciona</a>
+                <a href="#" class="text-white hover:bg-blue-500 block px-3 py-2 rounded-md text-base font-medium">Contato</a>
+                <a href="#" onclick="handleBottomButtonClick('Notificações')" class="text-white hover:bg-blue-500 block px-3 py-2 rounded-md text-base font-medium">Notificações</a>
             </div>
         </div>
     </header>
 
-    <main class="py-10 lg:py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-extrabold text-white mb-8 text-center sm:text-left">
-                <!-- Ícone removido aqui -->
-                Acompanhe a Sua Conta
-            </h1>
+    <!-- 2. CONTEÚDO PRINCIPAL -->
+    <main id="main-content" class="container mx-auto px-4 py-8">
+        <section class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-primary mb-4">A Locadora de Brinquedos Mais Divertida!</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Alugue os brinquedos perfeitos para todas as idades e ocasiões. Mais diversão, menos bagunça!</p>
+        </section>
 
-            <!-- Filtros -->
-            <div class="bg-[var(--color-bg-card)] p-6 rounded-xl shadow-2xl mb-8 border border-slate-700/50">
-                <h2 class="text-xl font-semibold text-white mb-4 flex items-center">
-                    <i data-lucide="filter" class="w-5 h-5 mr-2 text-teal-400"></i>
-                    Filtros de Busca
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <input type="text" id="filter-name" placeholder="Nome ou @usuário..." class="col-span-1 md:col-span-2 p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition" oninput="applyFilters()">
-                    <select id="filter-status" class="p-3 rounded-lg bg-slate-700/50 text-white border border-slate-600 focus:ring-indigo-500 transition cursor-pointer" onchange="applyFilters()">
-                        <option value="">Todos os Status</option>
-                        <option value="aguardando">Aguardando</option>
-                        <option value="analise">Análise</option>
-                        <option value="recuperar">Recuperação</option>
-                        <option value="sucesso">Sucesso</option>
-                        <option value="erro">Erro</option>
-                    </select>
-                    <button onclick="clearFilters()" class="p-3 rounded-lg bg-slate-600 hover:bg-slate-500 text-white font-semibold transition flex items-center justify-center shadow-md">
-                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
-                        Limpar
-                    </button>
-                </div>
+        <!-- Destaques (Grid Responsivo) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cartão de Destaque 1 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+                <div class="text-secondary mb-3 text-4xl">🧸</div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Variedade Imensa</h2>
+                <p class="text-gray-500">De brinquedos educativos a infláveis gigantes, temos o que você procura.</p>
             </div>
-
-            <!-- Container de Resultados -->
-            <div id="requests-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            
-            <div id="no-results" class="hidden text-center p-12 bg-[var(--color-bg-card)] rounded-xl shadow-xl mt-8 border border-slate-700/50">
-                <i data-lucide="frown" class="w-12 h-12 mx-auto text-slate-500 mb-4"></i>
-                <p class="text-xl text-slate-400">Nenhum pedido encontrado.</p>
+            <!-- Cartão de Destaque 2 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+                <div class="text-secondary mb-3 text-4xl">💰</div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Economize Dinheiro</h2>
+                <p class="text-gray-500">Aluguel é mais inteligente e econômico do que comprar.</p>
+            </div>
+            <!-- Cartão de Destaque 3 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+                <div class="text-secondary mb-3 text-4xl">🧼</div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">Limpeza Garantida</h2>
+                <p class="text-gray-500">Todos os itens são higienizados e inspecionados após cada locação.</p>
             </div>
         </div>
+
+        <!-- Seção de Chamada para Ação -->
+        <section class="mt-12 p-8 bg-secondary rounded-xl text-center shadow-inner">
+            <h3 class="text-3xl font-bold text-primary mb-4">Pronto para a Diversão?</h3>
+            <button onclick="handleBottomButtonClick('Alugar Agora')" class="bg-primary text-white font-bold py-3 px-8 rounded-full shadow-md hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+                Ver Catálogo Agora
+            </button>
+        </section>
+
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <div class="bg-slate-900 border-t border-indigo-900 py-10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <div class="flex items-center justify-center space-x-2 text-xl font-extrabold text-teal-400 mb-4">
-                    <i data-lucide="shield-half" class="w-5 h-5"></i>
-                    <span>HACKEA BRASIL</span>
+    <!-- 3. FOOTER (Rodapé) - Fixo na parte inferior da página, acima da bottom bar -->
+    <footer class="bg-primary pt-8 pb-4 text-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-6">
+                <!-- Coluna 1: Links Rápidos -->
+                <div>
+                    <h4 class="font-bold text-secondary mb-3">Links Rápidos</h4>
+                    <ul>
+                        <li class="mb-2"><a href="#" class="hover:text-secondary text-sm">Nossos Produtos</a></li>
+                        <li class="mb-2"><a href="#" class="hover:text-secondary text-sm">Novidades</a></li>
+                        <li class="mb-2"><a href="#" class="hover:text-secondary text-sm">Perguntas Frequentes</a></li>
+                    </ul>
                 </div>
-                <p class="text-sm text-slate-500">&copy; 2025 HACKEA BRASIL. Todos os direitos reservados.</p>
+                <!-- Coluna 2: Contato -->
+                <div>
+                    <h4 class="font-bold text-secondary mb-3">Fale Conosco</h4>
+                    <ul>
+                        <li class="mb-2 text-sm">Email: contato@brinquemais.com.br</li>
+                        <li class="mb-2 text-sm">Telefone: (11) 98765-4321</li>
+                        <li class="mb-2 text-sm">Endereço: Rua da Alegria, 123</li>
+                    </ul>
+                </div>
+                <!-- Coluna 3: Redes Sociais -->
+                <div class="col-span-2 md:col-span-2">
+                    <h4 class="font-bold text-secondary mb-3">Siga-nos</h4>
+                    <div class="flex space-x-4">
+                        <!-- Ícones de redes sociais (Usando Placeholders de Texto) -->
+                        <a href="#" class="text-2xl hover:text-secondary transition duration-150">F</a> <!-- Facebook -->
+                        <a href="#" class="text-2xl hover:text-secondary transition duration-150">I</a> <!-- Instagram -->
+                        <a href="#" class="text-2xl hover:text-secondary transition duration-150">T</a> <!-- Twitter -->
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-blue-600 pt-4 text-center">
+                <p class="text-sm text-blue-200">&copy; 2024 Brinque Mais. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Modal de Pagamento -->
-    <div id="payment-modal" class="modal-overlay"> 
-        <div class="modal-content p-6">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-700">
-                <h3 class="text-2xl font-bold text-white flex items-center">
-                    <i data-lucide="key-round" class="w-5 h-5 mr-2 text-emerald-400"></i>
-                    Fazer Pagamento
-                </h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
+    <!-- 4. BOTTOM BAR (Barra Inferior Fixa) - Apenas para Mobile/Tablet (max-lg) -->
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 w-full bg-white shadow-2xl lg:hidden border-t border-gray-200">
+        <div class="flex justify-around items-center h-16">
             
-            <div id="modal-details" class="py-5 space-y-3 text-slate-300">
-                <!-- Detalhes injetados aqui -->
-            </div>
+            <!-- Botão 1: Home -->
+            <button onclick="handleBottomButtonClick('Início')" class="flex flex-col items-center text-primary hover:text-secondary transition duration-150 p-2 rounded-lg w-1/4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                <span class="text-xs mt-1">Início</span>
+            </button>
+            
+            <!-- Botão 2: Brinquedos/Catálogo -->
+            <button onclick="handleBottomButtonClick('Catálogo')" class="flex flex-col items-center text-gray-500 hover:text-secondary transition duration-150 p-2 rounded-lg w-1/4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                <span class="text-xs mt-1">Catálogo</span>
+            </button>
+            
+            <!-- Botão 3: Carrinho (Central) -->
+            <button onclick="handleBottomButtonClick('Carrinho')" class="flex flex-col items-center bg-secondary text-primary rounded-full p-3 -mt-6 shadow-xl hover:scale-105 transition duration-200 transform w-1/4 max-w-[80px]">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </button>
 
-            <div class="pt-4 border-t border-slate-700">
-                <!-- Botão de pagamento que abre o link do Instagram Direct -->
-                <button onclick="redirectToChat()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-base">
-                    <i data-lucide="message-circle" class="w-5 h-5 mr-2"></i>
-                    PAGAR NO CHAT
-                </button>
-                <p class="text-xs text-slate-500 text-center mt-2">Você será redirecionado para o nosso canal de atendimento para finalizar o pagamento (PIX ou Cartão).</p>
-            </div>
+            <!-- Botão 4: Minha Conta -->
+            <button onclick="handleBottomButtonClick('Minha Conta')" class="flex flex-col items-center text-gray-500 hover:text-secondary transition duration-150 p-2 rounded-lg w-1/4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="text-xs mt-1">Conta</span>
+            </button>
+            
+            <!-- Botão 5: Suporte/Ajuda -->
+            <button onclick="handleBottomButtonClick('Ajuda')" class="flex flex-col items-center text-gray-500 hover:text-secondary transition duration-150 p-2 rounded-lg w-1/4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.228a4.5 4.5 0 110 5.544M15.772 9.228a4.5 4.5 0 100 5.544M18.89 13.5l-1.685.843A7.5 7.5 0 0112 20.25a7.5 7.5 0 01-5.205-1.907L5.11 15.75m3.784-6.321a9 9 0 010-5.544M15.084 9.228a9 9 0 000 5.544"></path></svg>
+                <span class="text-xs mt-1">Ajuda</span>
+            </button>
+
         </div>
-    </div>
-
-    <script>
-        // Adicionado campo 'platform'
-        const recoveryRequests = [
-            { id: '0001', name: 'João Silva', username: '@joaosilvablog', email: 'joaosilva@gmail.com', date: '01/10/2025', status: 'sucesso', stage: 4, error: null, cost: 99.90, platform: 'instagram' },
-            { id: '0002', name: 'Maria Souza', username: '@mariasouzaofc', email: 'mariasouza@hotmail.com', date: '05/10/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'instagram' },
-            { id: '0003', name: 'Pedro Santos', username: '@pedrosantos10', email: 'pedrosantos@yahoo.com', date: '10/10/2025', status: 'erro', stage: 4, error: 'Falha na validação de identidade documental.', cost: 0.00, platform: 'instagram' }, 
-            { id: '0004', name: 'Ana Oliveira', username: '@aninhafit', email: 'ana.oliveira@outlook.com', date: '15/10/2025', status: 'aguardando', stage: 1, error: null, cost: 0.00, platform: 'instagram' },
-            { id: '0005', name: 'Lucas Ferreira', username: '@lucasferreira', email: 'lucas.ferreira@gmail.com', date: '20/10/2025', status: 'recuperar', stage: 3, error: null, cost: 0.00, platform: 'instagram' },
-            { id: '0006', name: 'Carla Dias', username: '@carladias', email: 'carla_dias@gmail.com', date: '25/10/2025', status: 'sucesso', stage: 4, error: null, cost: 79.90, platform: 'instagram' },
-            { id: '0007', name: 'Roberto Lima', username: '@robertolima', email: 'robertolima@hotmail.com', date: '28/10/2025', status: 'erro', stage: 4, error: 'O invasor reforçou a segurança 2FA.', cost: 0.00, platform: 'instagram' }, 
-            
-            // Novos pedidos do Facebook
-            { id: '0008', name: 'Gabriela Costa', username: 'Gabriela Costa', email: 'gabicosta@gmail.com', date: '01/11/2025', status: 'sucesso', stage: 4, error: null, cost: 89.00, platform: 'facebook' },
-            { id: '0009', name: 'Ricardo Almeida', username: 'Ricardo Almeida', email: 'ricalmeida@hotmail.com', date: '05/11/2025', status: 'analise', stage: 2, error: null, cost: 0.00, platform: 'facebook' },
-            { id: '0010', name: 'Patrícia Nunes', username: 'Patrícia Nunes', email: 'patynunes@yahoo.com', date: '10/11/2025', status: 'erro', stage: 4, error: 'Perfil com restrição de idade permanente.', cost: 0.00, platform: 'facebook' },
-        ];
-
-        const progressStages = [
-            { label: "Solicitado" }, 
-            { label: "Análise" }, 
-            { label: "Recuperando" }, 
-            { label: "Finalizado" } 
-        ];
-        
-        // Função de ordenação: Sucesso (1) > Em Progresso (0) > Erro (-1)
-        function sortRequests(a, b) {
-            const getPriority = (status) => {
-                if (status === 'sucesso') return 2;
-                if (status === 'erro') return 0;
-                return 1; // aguardando, analise, recuperar
-            };
-
-            const priorityA = getPriority(a.status);
-            const priorityB = getPriority(b.status);
-
-            return priorityB - priorityA; // Ordena do maior (Sucesso) para o menor (Erro)
-        }
-
-
-        function getInitials(name) { return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2); }
-        
-        // CENSURA EMAIL: Mostra primeira, última e domínio
-        function censorEmail(email) {
-            if (!email || typeof email !== 'string') return '***@***';
-            const [local, domain] = email.split('@');
-            if (!domain) return '***@***';
-            // Deixa 1ª letra, 3 estrelas, última letra, e o domínio completo
-            return `${local[0]}***${local.slice(-1)}@${domain}`;
-        }
-        
-        // CENSURA USERNAME (Instagram): Censura as últimas 3 letras
-        function censorUsername(username, status) {
-            const statusToShow = ['sucesso', 'erro'];
-            // Se for status de sucesso ou erro, mostra o username completo
-            if (statusToShow.includes(status)) {
-                return username;
-            }
-            
-            // Censura
-            if (!username || username.length <= 4) {
-                return username.slice(0, 1) + '***';
-            }
-            // Deixa tudo exceto as últimas 3 letras visíveis
-            const visiblePart = username.slice(0, -3);
-            return visiblePart + '***';
-        }
-
-        // Formatação do custo para Real Brasileiro (R$)
-        function formatCost(cost) {
-            return cost.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-        
-        function renderProgressBarModern(request) {
-            
-            const isFinished = request.status === 'sucesso' || request.status === 'erro';
-            const actualStage = isFinished ? progressStages.length : request.stage;
-            const fillPercentage = ((actualStage - 1) / (progressStages.length - 1)) * 100;
-            
-            const fillColor = request.status === 'erro' ? 'var(--color-error)' : 'var(--color-success)';
-
-            let stepsHtml = progressStages.map((stage, index) => {
-                const stepNumber = index + 1;
-                const isLastStep = stepNumber === progressStages.length;
-                
-                let currentLabel = stage.label;
-                if (isLastStep) {
-                    if (request.status === 'sucesso') {
-                        // Rótulo da barra: Sucesso
-                        currentLabel = "Sucesso"; 
-                    } else if (request.status === 'erro') {
-                        // Rótulo da barra: Erro
-                        currentLabel = "Erro"; 
-                    } else {
-                        currentLabel = "Resultado";
-                    }
-                }
-
-                const isPassed = isFinished || request.stage >= stepNumber; 
-                const isCurrent = request.stage === stepNumber && !isFinished;
-                
-                let dotClass = 'dot-pending';
-                let labelClass = 'label-pending';
-                let icon = stepNumber;
-
-                if (request.status === 'erro') {
-                    dotClass = 'dot-error';
-                    labelClass = 'label-error';
-                    if (isLastStep) {
-                        icon = '<i data-lucide="x" class="w-4 h-4"></i>';
-                    }
-                } 
-                else if (isPassed) {
-                    dotClass = 'dot-passed';
-                    labelClass = 'label-passed';
-                    
-                    if (request.status === 'sucesso' && isLastStep) {
-                        icon = '<i data-lucide="check" class="w-4 h-4"></i>';
-                    }
-                }
-
-                if (isCurrent && request.status !== 'erro') {
-                    dotClass = 'dot-current';
-                    labelClass = 'label-current';
-                }
-                
-                if (!isPassed && !isCurrent) {
-                    dotClass = 'dot-pending';
-                    labelClass = 'label-pending';
-                    icon = stepNumber;
-                }
-
-
-                return `
-                    <div class="progress-step">
-                        <div class="progress-dot ${dotClass}">${icon}</div>
-                        <span class="step-label ${labelClass}">${currentLabel}</span>
-                    </div>
-                `;
-            }).join('');
-
-            // Botão de resgate com o texto simplificado e função para abrir o modal
-            const actionContent = (request.status === 'sucesso' ? 
-                `<button onclick="openModal('${request.id}', '${formatCost(request.cost)}', '${request.username}')" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white font-bold transition shadow-lg flex items-center justify-center text-sm">
-                    <i data-lucide="key" class="w-4 h-4 mr-2"></i>
-                    Resgatar por ${formatCost(request.cost)}
-                </button>` 
-            : request.status === 'erro' ? 
-                `<div class="p-2.5 bg-red-900/20 border border-red-500/30 rounded-lg text-red-300 text-xs font-medium">
-                    ${request.error || 'Erro desconhecido.'}
-                </div>` 
-            : '');
-
-            const actionContainerClass = actionContent ? "mt-12 text-center pt-4 border-t border-slate-700/50" : "";
-            
-            return `
-                <div class="progress-wrapper">
-                    <!-- Faixa (Track) e Preenchimento (Fill) -->
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: ${fillPercentage}%; background-color: ${fillColor}"></div>
-                    </div>
-                    
-                    <!-- Passos (Dots e Texto) -->
-                    <div class="progress-steps-container">
-                        ${stepsHtml}
-                    </div>
-
-                    <!-- Botão ou Status Final (Espaçamento só se houver conteúdo) -->
-                    ${actionContent ? `<div class="${actionContainerClass}">${actionContent}</div>` : ''}
-                </div>
-            `;
-        }
-        
-        // NOVA FUNÇÃO para renderizar detalhes da plataforma
-        function renderPlatformDetails(request) {
-            const isInstagram = request.platform === 'instagram';
-            
-            // Para Instagram, usamos censura. Para Facebook, usamos o nome completo.
-            const displayValue = isInstagram 
-                ? censorUsername(request.username, request.status) 
-                : request.username; 
-            
-            const iconName = isInstagram ? 'instagram' : 'facebook';
-            const linkBase = isInstagram 
-                ? `https://instagram.com/${request.username.replace('@', '')}` 
-                : `https://facebook.com/search/top?q=${encodeURIComponent(request.username)}`;
-            
-            // CORREÇÃO: O @ só é adicionado aqui, se for Instagram, para ser exibido no badge.
-            const linkText = isInstagram ? `@${displayValue.replace('@', '')}` : displayValue;
-            
-            const usernameIsLink = request.status === 'sucesso' || request.status === 'erro';
-            
-            // Classes para o texto do username (dentro do badge)
-            const textClass = usernameIsLink 
-                ? `text-white hover:text-slate-200 font-semibold transition truncate` 
-                : `text-white truncate`;
-            
-            // O BADGE (caixa) em si
-            const badgeClass = `inline-flex items-center px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700/70 shadow-inner`;
-
-            const content = `
-                <i data-lucide="${iconName}" class="w-3 h-3 text-white flex-shrink-0 mr-1"></i>
-                <span class="${textClass}">${linkText}</span>
-            `;
-
-            const element = usernameIsLink ? 
-                `<a href="${linkBase}" target="_blank" class="${badgeClass} hover:border-indigo-500">
-                    ${content}
-                </a>` :
-                `<span class="${badgeClass}">
-                    ${content}
-                </span>`;
-                
-            return element;
-        }
-
-        function renderRequestCard(request) {
-            let statusColor = 'border-slate-600';
-            let badgeColor = 'bg-slate-600';
-            let shadow = 'card-shadow';
-
-            // Lógica para cor da borda:
-            if (request.status === 'sucesso') {
-                statusColor = 'border-indigo-500'; // Sucesso: Roxa
-                shadow = 'status-success-shadow';
-            } else if (request.status === 'erro') {
-                // Borda VERMELHA para status de erro
-                statusColor = 'border-[var(--color-error)]'; 
-                shadow = 'status-error-shadow';
-            } else if (request.status === 'analise' || request.status === 'aguardando' || request.status === 'recuperar') {
-                // Progresso: Borda cinza
-                statusColor = 'border-slate-700';
-                badgeColor = 'bg-slate-700'; 
-            }
-            
-            // Lógica para cor do Badge:
-            if (request.status === 'sucesso') { 
-                badgeColor = 'bg-emerald-600'; 
-            } else if (request.status === 'erro') { 
-                badgeColor = 'bg-red-600'; 
-            }
-
-            const detailTextColor = 'text-slate-300';
-            
-            let detailContent;
-            
-            if (request.status === 'sucesso') {
-                // Conteúdo para status SUCESSO: Valor e Pagamento
-                detailContent = `
-                    <p class="flex items-center">
-                        <i data-lucide="dollar-sign" class="w-3 h-3 mr-2 text-teal-400"></i>
-                        Valor: <span class="ml-1 font-bold text-white">${formatCost(request.cost)}</span>
-                    </p>
-                    <p class="flex items-center">
-                        <i data-lucide="credit-card" class="w-3 h-3 mr-2 text-teal-400"></i>
-                        Pagamento: <span class="ml-1">PIX ou Cartão</span>
-                    </p>
-                `;
-            } else {
-                // Conteúdo para outros status: E-mail e Data de Solicitação
-                // Ícones de e-mail e calendário mudam para cinza (text-slate-500)
-                detailContent = `
-                    <p class="flex items-center">
-                        <i data-lucide="mail" class="w-3 h-3 mr-2 text-slate-500"></i>
-                        E-mail: <span class="ml-1">${censorEmail(request.email)}</span>
-                    </p>
-                    <p class="flex items-center">
-                        <i data-lucide="calendar" class="w-3 h-3 mr-2 text-slate-500"></i>
-                        Solicitação: <span class="ml-1">${request.date}</span>
-                    </p>
-                `;
-            }
-            
-            // NOTA SOBRE EXCLUSÃO DE DADOS (apenas para status de ERRO)
-            const deletionNote = request.status === 'erro' ? 
-                `<p class="text-[10px] text-red-400/80 mt-2 text-center border-t border-red-900/50 pt-1">
-                    <i data-lucide="alert-triangle" class="w-3 h-3 inline-block mr-1"></i>
-                    Os dados deste pedido serão excluídos automaticamente em 30 dias.
-                </p>` : '';
-
-
-            const html = `
-                <div class="bg-[var(--color-bg-card)] p-5 rounded-xl border ${statusColor} ${shadow} hover:scale-[1.01] transition duration-300">
-                    <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700/50">
-                        
-                        <!-- LAYOUT DO PEDIDO -->
-                        <div class="flex flex-col items-start leading-none">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">PEDIDO</span>
-                            <h3 class="text-base font-semibold text-white mt-0.5">#${request.id}</h3> 
-                        </div>
-
-                        <!-- BADGE DE STATUS COM COR DINÂMICA -->
-                        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full text-white ${badgeColor} uppercase tracking-wider">
-                            ${request.status}
-                        </span>
-                    </div>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 flex items-center justify-center bg-indigo-900/50 rounded-full text-sm font-bold text-indigo-400 border border-indigo-700/50">
-                            ${getInitials(request.name)}
-                        </div>
-                        <div class="overflow-hidden">
-                            <p class="text-base font-semibold text-white truncate">${request.name}</p>
-                            <!-- BOX AO REDOR DO NOME DE USUÁRIO / PERFIL -->
-                            <div class="text-xs mt-1">
-                                ${renderPlatformDetails(request)}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- DETALHES DINÂMICOS (Cinza Claro) -->
-                    <div class="space-y-1 text-xs pb-3 ${detailTextColor}">
-                        ${detailContent}
-                    </div>
-
-                    ${renderProgressBarModern(request)}
-                    
-                    <!-- NOTA DE EXCLUSÃO DE DADOS -->
-                    ${deletionNote}
-                </div>
-            `;
-            document.getElementById('requests-container').innerHTML += html;
-        }
-
-        // Funções do Modal
-        function openModal(id, cost, username) {
-            const modal = document.getElementById('payment-modal');
-            const details = document.getElementById('modal-details');
-            
-            // 2. Adiciona a classe no-scroll ao body
-            document.body.classList.add('no-scroll');
-
-            details.innerHTML = `
-                <p class="flex justify-between items-center text-sm">
-                    <span>Pedido:</span>
-                    <span class="font-bold text-white text-base">#${id}</span>
-                </p>
-                <p class="flex justify-between items-center text-sm">
-                    <span>Usuário (@):</span>
-                    <span class="font-bold text-white text-base">${username}</span>
-                </p>
-                <div class="h-px bg-slate-700 my-2"></div>
-                <p class="flex justify-between items-center text-lg text-emerald-400">
-                    <span class="font-bold">Total a Pagar:</span>
-                    <span class="font-extrabold">${cost}</span>
-                </p>
-                <p class="flex justify-between items-center text-sm mt-3">
-                    <span>Métodos Aceitos:</span>
-                    <span class="font-medium text-white flex items-center space-x-2">
-                        <i data-lucide="credit-card" class="w-4 h-4 text-teal-400"></i>
-                        <i data-lucide="scan" class="w-4 h-4 text-teal-400"></i>
-                        <span>PIX / Cartão</span>
-                    </span>
-                </p>
-            `;
-            lucide.createIcons();
-            modal.classList.add('open');
-        }
-
-        // 1. Alterada a lógica de fechamento para só fechar com o botão 'X'
-        function closeModal() {
-            document.getElementById('payment-modal').classList.remove('open');
-            // 2. Remove a classe no-scroll do body
-            document.body.classList.remove('no-scroll');
-        }
-        
-        // Função atualizada para redirecionar para o chat do Instagram
-        function redirectToChat() {
-            closeModal();
-            const chatLink = 'https://www.instagram.com/direct/t/17849467655496651/';
-            window.open(chatLink, '_blank');
-        }
-        // Fim das Funções do Modal
-
-
-        function renderRequests(list) {
-            const container = document.getElementById('requests-container');
-            const noRes = document.getElementById('no-results');
-            container.innerHTML = '';
-            if (list.length === 0) { noRes.classList.remove('hidden'); return; }
-            noRes.classList.add('hidden');
-            
-            // Ordena a lista antes de renderizar
-            const sortedList = [...list].sort(sortRequests);
-            
-            sortedList.forEach(renderRequestCard);
-            lucide.createIcons();
-        }
-
-        function applyFilters() {
-            const name = document.getElementById('filter-name').value.toLowerCase();
-            const status = document.getElementById('filter-status').value.toLowerCase();
-            const filtered = recoveryRequests.filter(r => 
-                (r.name.toLowerCase().includes(name) || r.username.toLowerCase().includes(name)) &&
-                (status === "" || r.status === status)
-            );
-            
-            // Renderiza os resultados filtrados e ordenados
-            renderRequests(filtered);
-        }
-        function clearFilters() {
-            document.getElementById('filter-name').value = '';
-            document.getElementById('filter-status').value = '';
-            applyFilters();
-        }
-        function initTracker() {
-            // Renderiza todos os pedidos iniciais, já ordenados.
-            renderRequests(recoveryRequests);
-        }
-    </script>
+    </nav>
 </body>
 </html>
